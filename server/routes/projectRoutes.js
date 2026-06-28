@@ -5,7 +5,7 @@ const router = express.Router()
 
 router.post('/projects', async (req, res) => {
     try {
-        // console.log("data from frontend ",req.body,req)
+        
 
         const newProject = await Project.create(req.body)
         res.status(201).json({ success: true, data: newProject });
@@ -17,11 +17,11 @@ router.post('/projects', async (req, res) => {
 
 router.put('/projects/:id', async (req, res) => {
     try {
-        const { phases } = req.body; // Frontend se naya phases array aayega
+        const { phases } = req.body; 
         const updatedProject = await Project.findByIdAndUpdate(
             req.params.id,
             { phases },
-            { new: true } // Ye naya saved object wapas dega
+            { new: true } 
         );
         
         res.json({ success: true, data: updatedProject });
@@ -32,14 +32,14 @@ router.put('/projects/:id', async (req, res) => {
 
 router.get('/projects', async (req, res) => {
     try {
-        const allProjects = await Project.find(); // Database se saare projects uthao
+        const allProjects = await Project.find(); 
         res.status(200).json({ success: true, data: allProjects });
     } catch (error) {
         res.status(500).json({ success: false, message: "Error fetching projects" });
     }
 });
 
-// Naya GET route for single project
+
 router.get('/projects/:id', async (req, res) => {
     try {
         const project = await Project.findById(req.params.id);
@@ -50,7 +50,7 @@ router.get('/projects/:id', async (req, res) => {
     }
 });
 
-// Add this in your projectRoutes.js
+
 router.delete('/projects/:id', async (req, res) => {
     try {
         const deletedProject = await Project.findByIdAndDelete(req.params.id);
@@ -60,6 +60,35 @@ router.delete('/projects/:id', async (req, res) => {
         res.status(200).json({ success: true, message: "Project delete ho gaya" });
     } catch (error) {
         res.status(500).json({ success: false, message: "Server Error" });
+    }
+});
+
+
+router.delete('/tasks/:taskId', async (req, res) => {
+    try {
+        const { taskId } = req.params;
+
+        
+        const updatedProject = await Project.findOneAndUpdate(
+            { "phases.tasks._id": taskId }, 
+            {
+                $pull: {
+                    "phases.$.tasks": { _id: taskId } 
+                }
+            },
+            { new: true } 
+        );
+
+        
+        if (!updatedProject) {
+            return res.status(404).json({ success: false, message: "Task nahi mila!" });
+        }
+
+        
+        res.status(200).json({ success: true, data: updatedProject });
+
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
     }
 });
 
