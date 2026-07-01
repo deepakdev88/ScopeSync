@@ -13,7 +13,10 @@ const ClientView = () => {
     try {
       if (showToast) setIsSyncing(true);
       
-      const res = await fetch(`http://localhost:5000/api/projects/${projectId}`)
+      const res = await fetch(`http://localhost:5000/api/projects/${projectId}`,{
+        method: 'GET',
+        credentials: 'include'
+      })
       const result = await res.json()
       
       if (result.success) {

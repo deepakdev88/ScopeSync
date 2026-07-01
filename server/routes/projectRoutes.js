@@ -1,95 +1,128 @@
 import Project from "../models/Project.js";
 import express from "express";
+import protect from "../middleware/authMiddleware.js";
 
-const router = express.Router()
+const router = express.Router();
 
-router.post('/projects', async (req, res) => {
+// @desc    Establish new sandbox environment project tied to current user context
+// @route   POST /api/projects
+router.post('/projects', protect, async (req, res) => {
     try {
-        
+        const projectData = {
+            ...req.body,
+            user: req.user.id // Bind project data directly to the active verified user object reference
+        };
 
-        const newProject = await Project.create(req.body)
+        const newProject = await Project.create(projectData);
         res.status(201).json({ success: true, data: newProject });
     } catch (error) {
-        console.error("Error in saving ", error)
-        res.status(500).json({ success: false, message: "Server Error, Data save nahi hua!" });
+        console.error("Database creation payload fault:", error);
+        res.status(500).json({ success: false, message: "Internal Server Error. Persistence engine write failure." });
     }
-})
+});
 
-router.put('/projects/:id', async (req, res) => {
+// @desc    Modify phase configurations belonging exclusively to the authenticated owner
+// @route   PUT /api/projects/:id
+router.put('/projects/:id', protect, async (req, res) => {
     try {
-        const { phases } = req.body; 
-        const updatedProject = await Project.findByIdAndUpdate(
-            req.params.id,
+        const { phases } = req.body;
+        const updatedProject = await Project.findOneAndUpdate(
+            { _id: req.params.id, user: req.user.id },
             { phases },
-            { new: true } 
+            { new: true }
         );
-        
+
+        if (!updatedProject) {
+            return res.status(404).json({ success: false, message: "Resource context mutation rejected or unauthorized." });
+        }
+
         res.json({ success: true, data: updatedProject });
     } catch (error) {
-        res.status(500).json({ success: false, message: "Update fail ho gaya!" });
+        res.status(500).json({ success: false, message: "Internal mutation interface failure." });
     }
 });
 
-router.get('/projects', async (req, res) => {
+// @desc    Fetch target runtime lists restricted strictly to user execution context
+// @route   GET /api/projects
+router.get('/projects', protect, async (req, res) => {
     try {
-        const allProjects = await Project.find(); 
+        const allProjects = await Project.find({ user: req.user.id });
         res.status(200).json({ success: true, data: allProjects });
     } catch (error) {
-        res.status(500).json({ success: false, message: "Error fetching projects" });
+        res.status(500).json({ success: false, message: "Data extraction routine initialization failure." });
     }
 });
 
-
-router.get('/projects/:id', async (req, res) => {
+// @desc    Retrieve individual unique documentation logs verified via access checks
+// @route   GET /api/projects/:id
+router.get('/projects/:id', protect, async (req, res) => {
     try {
-        const project = await Project.findById(req.params.id);
-        if (!project) return res.status(404).json({ success: false, message: "Project nahi mila" });
+        const project = await Project.findOne({ _id: req.params.id, user: req.user.id });
+        if (!project) return res.status(404).json({ success: false, message: "Target metadata tracking parameters unmet." });
         res.status(200).json({ success: true, data: project });
     } catch (error) {
-        res.status(500).json({ success: false, message: "Server error" });
+        res.status(500).json({ success: false, message: "Internal parameter processing exceptions." });
     }
 });
 
-
-router.delete('/projects/:id', async (req, res) => {
+// @desc    Wipe all project documents belonging exclusively to the authenticated user
+// @route   DELETE /api/projects
+// @access  Protected
+router.delete('/projects', protect, async (req, res) => {
     try {
-        const deletedProject = await Project.findByIdAndDelete(req.params.id);
-        if (!deletedProject) {
-            return res.status(404).json({ success: false, message: "Project nahi mila" });
-        }
-        res.status(200).json({ success: true, message: "Project delete ho gaya" });
+        // Multi-tenant isolation constraint: purge records targeting only the requesting user's footprint
+        const deletionSummary = await Project.deleteMany({ user: req.user.id });
+
+        res.status(200).json({
+            success: true,
+            message: "All isolated user repository data cleared from database indexes successfully.",
+            count: deletionSummary.deletedCount
+        });
     } catch (error) {
-        res.status(500).json({ success: false, message: "Server Error" });
+        console.error("Bulk records removal operations execution breakdown:", error);
+        res.status(500).json({ success: false, message: "Server error. Failed to execute repository clean routines." });
     }
 });
 
+// @desc    Purge system parameters safely matching exact user and reference constraints
+// @route   DELETE /api/projects/:id
+router.delete('/projects/:id', protect, async (req, res) => {
+    try {
+        const deletedProject = await Project.findOneAndDelete({ _id: req.params.id, user: req.user.id });
+        if (!deletedProject) {
+            return res.status(404).json({ success: false, message: "Data block targeted for removal missing or unauthorized." });
+        }
+        res.status(200).json({ success: true, message: "Data target structurally destroyed from system records." });
+    } catch (error) {
+        res.status(500).json({ success: false, message: "Internal database destruction pipeline breakdown." });
+    }
+});
 
-router.delete('/tasks/:taskId', async (req, res) => {
+// @desc    Isolate and drop atomic sub-task objects embedded inside deep phase document paths
+// @route   DELETE /api/tasks/:taskId
+router.delete('/tasks/:taskId', protect, async (req, res) => {
     try {
         const { taskId } = req.params;
 
-        
+        // Perform multi-tenant isolated sub-document lookup updates
         const updatedProject = await Project.findOneAndUpdate(
-            { "phases.tasks._id": taskId }, 
+            { "phases.tasks._id": taskId, user: req.user.id },
             {
                 $pull: {
-                    "phases.$.tasks": { _id: taskId } 
+                    "phases.$.tasks": { _id: taskId }
                 }
             },
-            { new: true } 
+            { new: true }
         );
 
-        
         if (!updatedProject) {
-            return res.status(404).json({ success: false, message: "Task nahi mila!" });
+            return res.status(404).json({ success: false, message: "Sub-node metadata element lookup structural breakdown." });
         }
 
-        
         res.status(200).json({ success: true, data: updatedProject });
-
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
 });
 
-export default router
+export default router;

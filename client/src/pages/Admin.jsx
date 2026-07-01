@@ -19,6 +19,8 @@ const Admin = () => {
     const [loading, setLoading] = useState(true)
     const [selectedModel, setSelectedModel] = useState("Waterfall");
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [isRegister, setIsRegister] = useState(false);
+    const [showWipeConfirm, setShowWipeConfirm] = useState(false);
 
     const modelPhases = {
         Waterfall: ["Requirements", "Design", "Implementation", "Verification"],
@@ -29,12 +31,45 @@ const Admin = () => {
 
     const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm()
 
-    const handleLogin = (data) => {
-        setIsAuth(true)
-        setIsInitWindow(true)
-        fetchProjects();
-        reset()
-    }
+
+
+    // Dynamic authenti cation handler to orchestrate both sign-up and log-in procedures
+    const handleAuth = async (data) => {
+
+        console.log(data)
+        const endpoint = isRegister ? 'register' : 'login';
+        try {
+            const res = await fetch(`http://localhost:5000/api/auth/${endpoint}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include', // Critically required to transmit secure httpOnly cookies cross-origin
+                body: JSON.stringify({ email: data.email, password: data.password })
+            });
+
+            const result = await res.json();
+
+            if (result.success) {
+                if (isRegister) {
+                    // Flow path for successful user registration
+                    toast.success("Account successfully created. Proceeding to login screen.");
+                    setIsRegister(false); // Seamlessly flip back to login view context
+                    reset();
+                } else {
+                    // Flow path for successful user login authentication
+                    toast.success("Authentication validated successfully.");
+                    setIsAuth(true);
+                    setIsInitWindow(true);
+                    fetchProjects(); // Hydrate user-isolated repository stacks
+                    reset();
+                }
+            } else {
+                toast.error(result.message || "Authentication baseline parameters rejected.");
+            }
+        } catch (error) {
+            console.error("Critical authentication interface connection failure:", error);
+            toast.error("Network anomaly detected. Authentication gateway unreachable.");
+        }
+    };
 
     const handleProjectWizard = (data) => {
         setisFinalWizard(true)
@@ -59,6 +94,7 @@ const Admin = () => {
             const res = await fetch('http://localhost:5000/api/projects', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
                 body: JSON.stringify(newProject)
             })
 
@@ -110,6 +146,7 @@ const Admin = () => {
         try {
             const res = await fetch(`http://localhost:5000/api/projects/${id}`, {
                 method: 'DELETE',
+                credentials: 'include',
             });
             const result = await res.json();
 
@@ -130,7 +167,7 @@ const Admin = () => {
     const deleteProject = (id) => {
         toast((t) => (
             <div className="flex flex-col gap-2 p-1">
-                <span className="text-sm font-bold text-red-600">⚠️ DANGER ZONE</span>
+                <span className="text-sm font-bold text-red-600"> DANGER ZONE</span>
                 <span className="text-xs text-gray-400">This action is irreversible. All project data will be permanently lost. Proceed??</span>
                 <div className="flex gap-2 justify-end mt-1">
                     <button onClick={() => toast.dismiss(t.id)} className="bg-gray-100 text-gray-700 text-xs px-3 py-1.5 font-medium rounded-lg hover:bg-gray-200 transition">Cancel</button>
@@ -177,6 +214,7 @@ const Admin = () => {
             const res = await fetch(`http://localhost:5000/api/projects/${currentProject._id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
                 body: JSON.stringify({ phases: updatedPhases })
             });
             const result = await res.json()
@@ -224,6 +262,7 @@ const Admin = () => {
         try {
             const res = await fetch(`http://localhost:5000/api/tasks/${taskId}`, {
                 method: 'DELETE',
+                credentials: 'include',
             });
 
             const result = await res.json();
@@ -283,39 +322,201 @@ const Admin = () => {
     const fetchProjects = async () => {
         try {
             setLoading(true)
-            const res = await fetch('http://localhost:5000/api/projects');
+            const res = await fetch('http://localhost:5000/api/projects', {
+                method: 'GET',
+                credentials: 'include' // Required to transmit the secure httpOnly token cookie to the protected route
+            });
             const result = await res.json();
             if (result.success) {
                 setProjects(result.data);
-                setLoading(false)
+            } else {
+                // If the token is invalid or expired, gracefully fallback and notify the user
+                console.warn("Authorization verification failed:", result.message);
+                setIsAuth(false); // Route the user back to the clean login state
             }
-            console.log("from backend for fornted again,", result)
+            console.log("from backend for fronted again,", result)
         } catch (err) {
-            console.error("Fetch karne mein error:", err);
+            console.error("Project repository data extraction routine failure:", err);
             setLoading(false)
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Secure front-end pipeline handler to clear atomic collections database registers
+    const handleWipeDatabase = async () => {
+
+
+        try {
+            const res = await fetch('http://localhost:5000/api/projects', {
+                method: 'DELETE',
+                credentials: 'include' // Transmits the active token signature securely
+            });
+
+            const result = await res.json();
+
+            if (result.success) {
+                toast.success("All personal database logs have been structurally cleared.");
+                setProjects([]); // Flush the state context on the UI instantly
+                setShowWipeConfirm(false);
+            } else {
+                console.error("Records removal routine rejected by server:", result.message);
+                toast.error(result.message || "Database clean processing routine encountered an error.");
+            }
+        } catch (error) {
+            console.error("Network exception detected during bulk delete sequence:", error);
+            toast.error("Network communication breakdown. Server was unreachable.");
         }
     };
 
 
 
+
+    // If not authenticated, render the authentication shield
     if (!isAuth) {
         return (
-            <form onSubmit={handleSubmit(handleLogin)} className='flex justify-center items-center w-screen h-screen bg-gray-50'>
-                <div className='p-6 border-2 border-green-700 w-[90%] max-w-md flex flex-col gap-4 justify-center items-center bg-white rounded-xl shadow-md'>
-                    <h1 className='text-xl font-bold text-gray-800'>Enter Developer Secret Key</h1>
-                    <input
-                        type="password"
-                        placeholder='Enter key..'
-                        className='border p-2 rounded w-full'
-                        {...register("key", {
-                            required: "This field is required.",
-                            validate: (value) => value === import.meta.env.VITE_ADMIN_PASSWORD || "Invalid Key."
-                        })}
-                    />
-                    {errors.key && <div className='text-red-500 text-sm'>{errors.key.message}</div>}
-                    <input className='bg-green-500 text-white font-bold p-2 px-6 rounded-xl cursor-pointer hover:bg-green-600 transition' type="submit" value="Login" />
+            <>
+                {/* Immersive notification portal matched with the application color scheme */}
+                <Toaster
+                    position="top-center"
+                    toastOptions={{
+                        style: {
+                            background: '#0d0e14',
+                            color: '#d1d5db',
+                            border: '1px solid rgba(255, 255, 255, 0.06)',
+                            borderRadius: '12px',
+                            fontSize: '13px',
+                            backdropFilter: 'blur(12px)',
+                        },
+                        success: {
+                            iconTheme: {
+                                primary: '#10b981',
+                                secondary: '#0d0e14',
+                            },
+                        },
+                        error: {
+                            iconTheme: {
+                                primary: '#ef4444',
+                                secondary: '#0d0e14',
+                            },
+                        },
+                    }}
+                />
+
+                <div className='w-full min-h-screen bg-[#090a0f] text-gray-300 flex flex-col items-center justify-center relative overflow-hidden selection:bg-emerald-500/30 selection:text-emerald-300 font-sans antialiased'>
+
+                    {/* Shared Background Ambient Glows inherited from Home structure */}
+                    <div className='absolute top-[-10%] left-[50%] -translate-x-1/2 w-150 h-75 bg-emerald-500/10 blur-[120px] rounded-full pointer-events-none'></div>
+                    <div className='absolute bottom-[10%] right-[-10%] w-100 h-100 bg-green-500/3 blur-[150px] rounded-full pointer-events-none'></div>
+
+                    {/* Core Authentication Glass Container */}
+                    <div className='w-[90%] max-w-100 rounded-2xl border border-white/6 bg-[#0d0e14]/60 backdrop-blur-md p-8 shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative z-10 space-y-6'>
+
+                        {/* Visual Operational Status Badge */}
+                        <div className='text-center'>
+                            <div className='inline-flex items-center gap-2 px-3 py-1 rounded-full border border-emerald-500/20 bg-emerald-500/5 text-xs text-emerald-400 font-medium mb-4 select-none'>
+                                <span className='w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse'></span>
+                                {isRegister ? "Registration Mode" : "Console Gateway"}
+                            </div>
+
+                            <h1 className='text-2xl font-extrabold tracking-tight text-transparent bg-clip-text bg-linear-to-b from-white to-gray-400 leading-tight mb-2'>
+                                {isRegister ? "Create Account" : "Access Console"}
+                            </h1>
+                            <p className='text-xs text-gray-500 leading-relaxed max-w-xs mx-auto'>
+                                {isRegister
+                                    ? "Initialize a secure workspace node to isolate your engineering deliverables."
+                                    : "Authenticate your active developer session parameters to launch the engine."
+                                }
+                            </p>
+                        </div>
+
+                        {/* Integrated Framework Interface Form */}
+                        <form onSubmit={handleSubmit(handleAuth)} className='space-y-4'>
+
+                            {/* IDENTIFICATION INPUT STRING */}
+                            <div className='space-y-2'>
+                                <label className='text-xs font-semibold text-gray-400 block tracking-wide'>
+                                    Email Address
+                                </label>
+                                <input
+                                    type="email"
+                                    placeholder='developer@scopesync.dev'
+                                    className='w-full rounded-xl border border-white/6 bg-[#090a0f] p-3 text-sm text-gray-200 placeholder:text-gray-700 focus:outline-none focus:border-emerald-500/40 transition-colors duration-200'
+                                    {...register("email", {
+                                        required: "Email parameter allocation is strictly required.",
+                                        pattern: {
+                                            value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                                            message: "Invalid structural configuration format for target email path."
+                                        }
+                                    })}
+                                />
+                                {errors.email && (
+                                    <p className='text-red-400/90 text-xs mt-1 font-medium flex items-center gap-1'>
+                                        {errors.email.message}
+                                    </p>
+                                )}
+                            </div>
+
+                            {/* CRYPTOGRAPHIC INPUT VALUE */}
+                            <div className='space-y-2'>
+                                <label className='text-xs font-semibold text-gray-400 block tracking-wide'>
+                                    Password
+                                </label>
+                                <input
+                                    type="password"
+                                    placeholder='••••••••'
+                                    className='w-full rounded-xl border border-white/6 bg-[#090a0f] p-3 text-sm text-gray-200 placeholder:text-gray-700 focus:outline-none focus:border-emerald-500/40 transition-colors duration-200'
+                                    {...register("password", {
+                                        required: "Authentication sequence requires a valid password mapping.",
+                                        minLength: {
+                                            value: 6,
+                                            message: "Length parameter boundary breach (Minimum 6 characters)."
+                                        }
+                                    })}
+                                />
+                                {errors.password && (
+                                    <p className='text-red-400/90 text-xs mt-1 font-medium flex items-center gap-1'>
+                                        {errors.password.message}
+                                    </p>
+                                )}
+                            </div>
+
+                            {/* SUBMIT INTERFACE ACTUATOR */}
+                            <button
+                                type="submit"
+                                disabled={isSubmitting}
+                                className='mt-2 w-full inline-flex items-center justify-center px-6 py-3 rounded-xl font-semibold text-sm bg-linear-to-r from-emerald-500 to-green-600 text-black hover:shadow-[0_0_25px_rgba(16,185,129,0.3)] hover:scale-[1.01] active:scale-[0.99] disabled:opacity-40 disabled:scale-100 transition-all duration-200 cursor-pointer'
+                            >
+                                {isSubmitting ? (
+                                    <span className='flex items-center gap-2'>
+                                        <svg className="animate-spin h-4 w-4 text-black" fill="none" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                                        </svg>
+                                        Verifying session parameters...
+                                    </span>
+                                ) : (
+                                    <span>{isRegister ? "Initialize Node Stack" : "Launch Executive Console"}</span>
+                                )}
+                            </button>
+                        </form>
+
+                        {/* CONTEXT VARIATION TOGGLE LINK */}
+                        <div className='pt-4 border-t border-white/4 text-center'>
+                            <span
+                                onClick={() => { setIsRegister(!isRegister); reset(); }}
+                                className='text-xs text-gray-500 hover:text-emerald-400 font-medium cursor-pointer transition-colors duration-200 select-none'
+                            >
+                                {isRegister
+                                    ? "Existing operator registry? Access configuration gateway"
+                                    : "New environment container? Deploy active account workspace"
+                                }
+                            </span>
+                        </div>
+
+                    </div>
                 </div>
-            </form>
+            </>
         )
     }
 
@@ -369,7 +570,7 @@ const Admin = () => {
                             <div className='md:col-span-2 p-8 flex flex-col justify-between bg-white/1 border-b md:border-b-0 md:border-r border-white/4'>
                                 <div className='space-y-4'>
                                     <div className='w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 font-mono text-sm font-bold'>
-                            //
+
                                     </div>
                                     <div className='space-y-1.5'>
                                         <h2 className='text-xl font-extrabold tracking-tight text-white'>
@@ -406,10 +607,10 @@ const Admin = () => {
 
                                     {projects.length === 0 ? (
                                         <div className='grow flex flex-col items-center justify-center py-12 text-center opacity-40'>
-                                            <svg className="w-8 h-8 text-gray-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg className="w-8 h-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4a2 2 0 012-2m16 0h-2m-3 0H9m-3 0H4" />
                                             </svg>
-                                            <p className='text-xs text-gray-500 font-mono'>No active execution stacks deployed.</p>
+                                            <p className='text-xs text-gray-400 font-mono'>No active execution stacks deployed.</p>
                                         </div>
                                     ) : (
                                         <ul className='w-full flex flex-col gap-3 max-h-65 overflow-y-auto pr-1 custom-scrollbar'>
@@ -461,13 +662,54 @@ const Admin = () => {
                                 </div>
 
                                 {projects.length > 0 && (
-                                    <div className='mt-6 pt-4 border-t border-white/4 flex justify-end w-full'>
-                                        <button
-                                            className='text-red-500/50 text-[10px] tracking-wide font-mono uppercase hover:text-red-400 transition-colors'
-                                            onClick={() => setProjects([])}
-                                        >
-                                            [ Wipe Database Registers ]
-                                        </button>
+                                    <div className='mt-8 pt-6 border-t border-white/5 w-full flex flex-col items-end gap-3 transition-all duration-300'>
+                                        {!showWipeConfirm ? (
+                                            // Pristine, minimalist utility trigger that stays out of the way
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowWipeConfirm(true)}
+                                                className='inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/5 bg-white/1 hover:bg-red-500/3 hover:border-red-500/10 text-[11px] font-mono text-zinc-500 hover:text-red-400 border-dashed hover:border-solid transition-all duration-200 cursor-pointer group select-none'
+                                            >
+                                                {/* Micro-vector asset for structural removal alignment */}
+                                                <svg
+                                                    className="w-3.5 h-3.5 opacity-40 group-hover:opacity-90 group-hover:scale-105 transition-all duration-150"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    viewBox="0 0 24 24"
+                                                >
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                                <span>Wipe Workspace Registers</span>
+                                            </button>
+                                        ) : (
+                                            // Matte Obsidian Danger Area tailored directly to the application grid
+                                            <div className='w-full sm:w-auto flex flex-col sm:flex-row items-center gap-5 bg-[#110c0e] border border-red-950/60 backdrop-blur-md px-4 py-3 rounded-xl animate-fade-in justify-between shadow-[0_12px_40px_rgba(0,0,0,0.7)] z-10 animate-scale-up'>
+                                                <div className='flex items-center gap-2.5 select-none'>
+                                                    {/* Pulsing visual security indicator dot */}
+                                                    <span className='w-1.5 h-1.5 rounded-full bg-red-500 shadow-[0_0_8px_#ef4444] animate-pulse shrink-0'></span>
+                                                    <p className='text-[11px] font-sans font-medium text-zinc-400 tracking-wide leading-none'>
+                                                        Permanently purge all isolated data blocks? This action cannot be undone.
+                                                    </p>
+                                                </div>
+
+                                                <div className='flex items-center gap-4 w-full sm:w-auto justify-end font-sans'>
+                                                    <button
+                                                        type="button"
+                                                        className='text-zinc-500 hover:text-zinc-300 text-[11px] font-medium transition-colors cursor-pointer select-none'
+                                                        onClick={() => setShowWipeConfirm(false)}
+                                                    >
+                                                        Cancel
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        className='bg-red-500/10 hover:bg-red-500 border border-red-500/20 hover:border-red-600 text-red-400 hover:text-black px-3 py-1.5 rounded-lg text-[11px] font-semibold tracking-wide transition-all duration-200 shadow-inner cursor-pointer'
+                                                        onClick={handleWipeDatabase}
+                                                    >
+                                                        Confirm
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
                                 )}
                             </div>
@@ -496,7 +738,7 @@ const Admin = () => {
                             className='w-full bg-[#14161e] text-gray-200 border border-white/8 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-500/40 focus:ring-1 focus:ring-emerald-500/40 placeholder:text-gray-700 transition-all duration-200'
                             {...register("projectName", { required: "Project identity title is required." })}
                         />
-                        {errors.projectName && <div className='text-red-400 font-medium text-xs mt-0.5'>⚠️ {errors.projectName.message}</div>}
+                        {errors.projectName && <div className='text-red-400 font-medium text-xs mt-0.5'> {errors.projectName.message}</div>}
 
                         <div className='flex justify-end w-full mt-2'>
                             <input
@@ -560,7 +802,7 @@ const Admin = () => {
                             )}
                         </div>
 
-                        {errors.models && <div className='text-red-400 font-medium text-xs mt-0.5'>⚠️ {errors.models.message}</div>}
+                        {errors.models && <div className='text-red-400 font-medium text-xs mt-0.5'> {errors.models.message}</div>}
 
                         <div className='flex justify-end w-full mt-2'>
                             <input
@@ -588,6 +830,7 @@ const Admin = () => {
                     handleClearAllTasks={handleClearAllTasks}
                     handleStatusChange={handleStatusChange}
                     handleDeleteTask={handleDeleteTask}
+                    setIsInitWindow={setIsInitWindow}
                 />
             )}
 

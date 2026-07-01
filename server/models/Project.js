@@ -20,6 +20,11 @@ const PhaseSchema = new mongoose.Schema({
 //Main project schema 
 
 const ProjectSchema = new mongoose.Schema({
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required:true
+    },
     projectName: {type: String, required: true},
     models:{
         type:String,
