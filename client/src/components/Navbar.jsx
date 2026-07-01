@@ -14,16 +14,14 @@ const Navbar = () => {
         {/* Nav Links */}
         <div className='flex items-center gap-6 text-sm font-medium text-gray-400'>
           <a 
-            href="https://github.com" 
+            href="https://github.com/deepakdev88  " 
             target="_blank" 
             rel="noreferrer" 
             className='hover:text-white transition-colors duration-200 flex items-center gap-1'
           >
             GitHub
           </a>
-          <NavLink to="/about" className='hover:text-white transition-colors duration-200'>
-            About
-          </NavLink>
+          
         </div>
       </div>
     </nav>

@@ -2,6 +2,7 @@ import { useParams } from "react-router"
 import { useEffect, useState, useCallback } from "react"
 import ProjectDashboard from "../components/ProjectDashboard"
 import toast from 'react-hot-toast'
+import { API_URL } from '../config';
 
 const ClientView = () => {
   const { projectId } = useParams() 
@@ -13,7 +14,7 @@ const ClientView = () => {
     try {
       if (showToast) setIsSyncing(true);
       
-      const res = await fetch(`http://localhost:5000/api/projects/${projectId}`,{
+      const res = await fetch(`${API_URL}/api/projects/${projectId}`,{
         method: 'GET',
         credentials: 'include'
       })

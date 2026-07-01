@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form'
 import Navbar from "../components/Navbar"
 import ProjectDashboard from '../components/ProjectDashboard'
 import { toast, Toaster } from 'react-hot-toast'
+import { API_URL } from '../config';
 import "../App.css"
 
 
@@ -39,7 +40,7 @@ const Admin = () => {
         console.log(data)
         const endpoint = isRegister ? 'register' : 'login';
         try {
-            const res = await fetch(`http://localhost:5000/api/auth/${endpoint}`, {
+            const res = await fetch(`${API_URL}/api/auth/${endpoint}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include', // Critically required to transmit secure httpOnly cookies cross-origin
@@ -91,7 +92,7 @@ const Admin = () => {
 
 
         try {
-            const res = await fetch('http://localhost:5000/api/projects', {
+            const res = await fetch(`${API_URL}/api/projects`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
@@ -144,7 +145,7 @@ const Admin = () => {
 
 
         try {
-            const res = await fetch(`http://localhost:5000/api/projects/${id}`, {
+            const res = await fetch(`${API_URL}/api/projects/${id}`, {
                 method: 'DELETE',
                 credentials: 'include',
             });
@@ -211,7 +212,7 @@ const Admin = () => {
 
         // Database Update (Backend Sync)
         try {
-            const res = await fetch(`http://localhost:5000/api/projects/${currentProject._id}`, {
+            const res = await fetch(`${API_URL}/api/projects/${currentProject._id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
@@ -260,7 +261,7 @@ const Admin = () => {
         const toastId = toast.loading("Task Loading...");
 
         try {
-            const res = await fetch(`http://localhost:5000/api/tasks/${taskId}`, {
+            const res = await fetch(`${API_URL}/api/tasks/${taskId}`, {
                 method: 'DELETE',
                 credentials: 'include',
             });
@@ -322,7 +323,7 @@ const Admin = () => {
     const fetchProjects = async () => {
         try {
             setLoading(true)
-            const res = await fetch('http://localhost:5000/api/projects', {
+            const res = await fetch(`${API_URL}/api/projects`, {
                 method: 'GET',
                 credentials: 'include' // Required to transmit the secure httpOnly token cookie to the protected route
             });
@@ -348,7 +349,7 @@ const Admin = () => {
 
 
         try {
-            const res = await fetch('http://localhost:5000/api/projects', {
+            const res = await fetch(`${API_URL}/api/projects`, {
                 method: 'DELETE',
                 credentials: 'include' // Transmits the active token signature securely
             });
