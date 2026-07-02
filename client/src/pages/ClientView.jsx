@@ -13,7 +13,7 @@ const ClientView = () => {
   const fetchProjectNodeData = useCallback(async (showToast = false) => {
     try {
       if (showToast) setIsSyncing(true);
-      
+      console.log(API_URL)
       const res = await fetch(`${API_URL}/api/projects/${projectId}`,{
         method: 'GET',
         credentials: 'include'

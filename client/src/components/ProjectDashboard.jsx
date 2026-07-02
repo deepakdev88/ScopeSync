@@ -81,7 +81,8 @@ const ProjectDashboard = ({
                             {/* TOP ROW: Contextual Navigation Controls */}
                             <div className='flex items-center justify-between border-b border-white/4 pb-3 w-full'>
                                 {/* Dynamic Back Navigation */}
-                                <button
+                                {isAdmin && 
+                                (<button
                                     type="button"
                                     onClick={() => {
                                         setIsInitWindow(true);          // Dashboard main window active
@@ -93,7 +94,7 @@ const ProjectDashboard = ({
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                                     </svg>
                                     <span>Back to Dashboard</span>
-                                </button>
+                                </button>)}
 
                                 {/* Restricted Sign Out - Rendered exclusively for Administrators */}
                                 {/* Restricted Sign Out - Rendered exclusively for Administrators with Premium Micro-interaction */}
