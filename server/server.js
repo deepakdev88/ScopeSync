@@ -12,7 +12,8 @@ const PORT = process.env.PORT || 5000;
 
 // Configure CORS to permit cross-origin cookie transfers
 app.use(cors({
-    origin: 'http://localhost:5173', // Standard Vite frontend development port
+    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+
     credentials: true
 }));
 
