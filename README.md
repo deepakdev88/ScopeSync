@@ -2,75 +2,33 @@
 
 > **A Full-Stack Project Management Dashboard for Developers**
 
-A complete MERN stack project management application built for tracking projects across different methodologies (Waterfall, Agile, Scrum, Kanban). Features secure JWT authentication, multi-user support, and a modern dark-themed dashboard.
-
-**Live Demo:** [scope-sync-virid.vercel.app](https://scope-sync-virid.vercel.app)
+A production-ready MERN stack application for tracking projects across different methodologies (Waterfall, Agile, Scrum, Kanban). Secure JWT authentication, multi-user support, dark-themed dashboard.
 
 ---
 
-## 📋 Table of Contents
+## 🌐 Live Demo
 
-- [Features](#-features)
-- [Tech Stack](#-tech-stack)
-- [Project Structure](#-project-structure)
-- [Installation](#-installation)
-- [Environment Configuration](#-environment-configuration)
-- [API Endpoints](#-api-endpoints)
-- [Usage Guide](#-usage-guide)
-- [Authentication Flow](#-authentication-flow)
-- [Database Schema](#-database-schema)
-- [Security Features](#-security-features)
-- [Deployment](#-deployment)
-- [Future Improvements](#-future-improvements)
-- [License](#-license)
+- **Frontend:** [scope-sync-virid.vercel.app](https://scope-sync-virid.vercel.app)
+- **Backend API:** [scopesync.onrender.com](https://scopesync.onrender.com)
 
 ---
 
-## ✨ Features
+## ✨ Key Features
 
-### Core Functionality
-- ✅ **User Authentication** — Secure login/register with JWT tokens
-- ✅ **Multi-Methodology Support** — Waterfall, Agile, Scrum, Kanban templates
-- ✅ **Project Management** — Create, read, update, delete projects
+- ✅ **JWT Authentication** — Secure login/register with bcrypt password hashing
+- ✅ **Project Management** — Create, update, delete projects with CRUD operations
+- ✅ **Multi-Methodology** — Waterfall, Agile, Scrum, Kanban templates
 - ✅ **Task Tracking** — Organize tasks by phases, track status (pending/progress/completed)
-- ✅ **Admin Dashboard** — Full project management console
-- ✅ **Client View** — Read-only shareable project links for clients
-- ✅ **Phase-Based Organization** — Structured workflow with multiple phases per project
-
-### Technical Highlights
-- 🔐 **JWT Authentication** — Secure token-based auth with bcrypt password hashing
-- 🗄️ **MongoDB Database** — NoSQL persistence with Mongoose ODM
-- 🎨 **Modern UI** — Dark-themed, responsive design with Tailwind CSS
-- 📱 **Mobile Responsive** — Works seamlessly on all devices
-- 🔒 **CORS Protection** — Secure cross-origin requests
-- 🚀 **Fast Build Process** — Vite for rapid development
+- ✅ **Client Sharing** — Read-only shareable project links
+- ✅ **Responsive UI** — Dark theme, mobile-friendly Tailwind CSS design
+- ✅ **Multi-Tenant** — Complete data isolation per user
 
 ---
 
 ## 🛠️ Tech Stack
 
-### Backend
-| Technology | Version | Used For |
-|------------|---------|----------|
-| **Node.js** | 18+ | JavaScript runtime |
-| **Express** | 5.2.1 | Web server & routing |
-| **MongoDB** | Latest | Database |
-| **Mongoose** | 9.7.1 | Database schema & validation |
-| **JWT** | Latest | Authentication tokens |
-| **bcryptjs** | Latest | Password hashing |
-| **CORS** | 2.8.6 | Cross-origin requests |
-| **dotenv** | 17.4.2 | Environment variables |
-| **Nodemon** | 3.1.14 | Development auto-reload |
-
-### Frontend
-| Technology | Version | Used For |
-|------------|---------|----------|
-| **React** | 19.2.6 | UI library |
-| **Vite** | 8.0.12 | Build tool & dev server |
-| **React Router** | 7.17.0 | Client-side routing |
-| **React Hook Form** | 7.78.0 | Form handling & validation |
-| **Tailwind CSS** | 4.3.0 | Styling |
-| **react-hot-toast** | 2.6.0 | Notifications |
+**Backend:** Node.js • Express • MongoDB • Mongoose • JWT • bcryptjs  
+**Frontend:** React 19 • Vite • React Router • Tailwind CSS • React Hook Form
 
 ---
 
@@ -78,511 +36,172 @@ A complete MERN stack project management application built for tracking projects
 
 ```
 ScopeSync/
+├── client/              # React Frontend
+│   ├── src/pages/       # Home, Admin, ClientView
+│   ├── src/components/  # ProjectDashboard, Navbar
+│   └── src/routes.jsx   # React Router config
 │
-├── client/                        # React Frontend
-│   ├── src/
-│   │   ├── pages/
-│   │   │   ├── Home.jsx          # Landing page
-│   │   │   ├── Admin.jsx         # Admin management console
-│   │   │   └── ClientView.jsx    # Read-only client dashboard
-│   │   ├── components/
-│   │   │   ├── ProjectDashboard.jsx  # Main dashboard component
-│   │   │   └── Navbar.jsx            # Navigation
-│   │   ├── routes.jsx            # React Router setup
-│   │   ├── App.jsx               # Root component
-│   │   └── main.jsx              # Entry point
-│   ├── public/                   # Static files
-│   ├── index.html
-│   ├── vite.config.js
-│   ├── tailwind.config.js
-│   └── package.json
-│
-├── server/                        # Express Backend
-│   ├── models/
-│   │   ├── User.js              # User schema (email, password)
-│   │   └── Project.js           # Project schema (phases, tasks)
-│   ├── routes/
-│   │   ├── authRoutes.js        # Auth endpoints
-│   │   └── projectRoutes.js     # Project CRUD endpoints
-│   ├── middleware/
-│   │   └── authMiddleware.js    # JWT verification
-│   ├── server.js                # App initialization
-│   └── package.json
-│
-└── README.md
+└── server/              # Express Backend
+    ├── models/          # User, Project schemas
+    ├── routes/          # authRoutes, projectRoutes
+    └── middleware/      # authMiddleware (JWT verification)
 ```
 
 ---
 
-## 🚀 Installation
+## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js v18 or higher
-- npm or yarn
-- MongoDB account (Atlas or local instance)
+- Node.js v18+
+- MongoDB (Atlas or local)
 - Git
 
-### Step 1: Clone Repository
-
-```bash
-git clone https://github.com/deepakdev88/ScopeSync.git
-cd ScopeSync
-```
-
-### Step 2: Backend Setup
+### Backend Setup
 
 ```bash
 cd server
-
-# Install dependencies
 npm install
 
-# Create .env file
+# Create .env
 cat > .env << EOF
 PORT=5000
 MONGO_URI=mongodb+srv://username:password@cluster.mongodb.net/scopesync
-JWT_SECRET=your-secret-key-here-min-32-chars
+JWT_SECRET=your_secret_key_min_32_chars
 FRONTEND_URL=http://localhost:5173
 NODE_ENV=development
 EOF
 
-# Start server
 npm run dev
 ```
 
-**Backend runs on:** `http://localhost:5000`
+Backend: `http://localhost:5000`
 
-### Step 3: Frontend Setup
+### Frontend Setup
 
 ```bash
-cd ../client
-
-# Install dependencies
+cd client
 npm install
 
-# Create .env file
+# Create .env
 cat > .env << EOF
 VITE_API_URL=http://localhost:5000
-VITE_ADMIN_PASSWORD=1234
 EOF
 
-# Start dev server
 npm run dev
 ```
 
-**Frontend runs on:** `http://localhost:5173`
+Frontend: `http://localhost:5173`
 
 ---
 
-## ⚙️ Environment Configuration
+## 📡 Core API Endpoints
 
-### Backend `.env` File
+### Authentication
+- `POST /api/auth/register` — Create new user account
+- `POST /api/auth/login` — Login with email/password (sets JWT cookie)
+- `GET /api/auth/verify` — Verify current session
 
-```env
-# Server
-PORT=5000
-NODE_ENV=development
-
-# Database
-MONGO_URI=mongodb+srv://username:password@cluster.mongodb.net/dbname?retryWrites=true&w=majority
-
-# JWT Secret (use a strong random string)
-JWT_SECRET=your_super_secret_key_minimum_32_characters_long_recommended
-
-# Frontend URL for CORS
-FRONTEND_URL=http://localhost:5173
-```
-
-### Frontend `.env` File
-
-```env
-# API Base URL
-VITE_API_URL=http://localhost:5000
-
-# Admin Password for console access
-VITE_ADMIN_PASSWORD=1234
-```
-
-### Getting MongoDB Connection String
-
-1. Go to [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
-2. Create a free cluster
-3. Create a database user
-4. Get connection string: `mongodb+srv://username:password@cluster.mongodb.net/dbname`
+### Projects (requires JWT)
+- `POST /api/projects` — Create new project
+- `GET /api/projects` — Get all user projects
+- `GET /api/projects/:id` — Get specific project
+- `PUT /api/projects/:id` — Update project phases/tasks
+- `DELETE /api/projects/:id` — Delete project
+- `DELETE /api/tasks/:taskId` — Delete specific task
 
 ---
 
-## 📡 API Endpoints
+## 🎯 How to Use
 
-### Authentication Routes
-
-#### Register New User
-```bash
-POST /api/auth/register
-Content-Type: application/json
-
-{
-  "email": "user@example.com",
-  "password": "SecurePassword123"
-}
-
-Response (201):
-{
-  "success": true,
-  "message": "User registration sequence verified.",
-  "data": {
-    "id": "user_mongodb_id",
-    "email": "user@example.com"
-  }
-}
-```
-
-#### Login
-```bash
-POST /api/auth/login
-Content-Type: application/json
-
-{
-  "email": "user@example.com",
-  "password": "SecurePassword123"
-}
-
-Response (200):
-{
-  "success": true,
-  "message": "Authentication sequence established."
-}
-# Sets httpOnly JWT cookie automatically
-```
-
-#### Verify Session
-```bash
-GET /api/auth/verify
-# Requires valid JWT cookie
-
-Response (200):
-{
-  "success": true,
-  "message": "Session verified. Token remains valid."
-}
-```
+1. **Sign Up** — Create account with email/password
+2. **Create Project** — Choose methodology (Waterfall/Agile/Scrum/Kanban)
+3. **Add Tasks** — Click phase → type task → press Enter
+4. **Update Status** — Drag or click dropdown to change task status
+5. **Share Link** — Click "Share Stream Link" for client access
 
 ---
 
-### Project Routes
+## 🔐 Security Features
 
-#### Create Project
-```bash
-POST /api/projects
-Authorization: (JWT cookie)
-Content-Type: application/json
-
-{
-  "projectName": "E-commerce Platform",
-  "models": "Agile",
-  "phases": [
-    {
-      "phaseName": "Backlog",
-      "tasks": []
-    },
-    {
-      "phaseName": "In Progress",
-      "tasks": []
-    },
-    {
-      "phaseName": "Done",
-      "tasks": []
-    }
-  ]
-}
-
-Response (201):
-{
-  "success": true,
-  "data": { ...project object }
-}
-```
-
-#### Get All Projects
-```bash
-GET /api/projects
-Authorization: (JWT cookie)
-
-Response (200):
-{
-  "success": true,
-  "data": [
-    { project1 },
-    { project2 }
-  ]
-}
-```
-
-#### Get Single Project
-```bash
-GET /api/projects/:id
-Authorization: (JWT cookie)
-
-Response (200):
-{
-  "success": true,
-  "data": { project object }
-}
-```
-
-#### Update Project (Add/Modify Tasks)
-```bash
-PUT /api/projects/:id
-Authorization: (JWT cookie)
-Content-Type: application/json
-
-{
-  "phases": [
-    {
-      "phaseName": "Backlog",
-      "tasks": [
-        {
-          "_id": "task_id",
-          "name": "Setup database",
-          "status": "completed"
-        }
-      ]
-    }
-  ]
-}
-
-Response (200):
-{
-  "success": true,
-  "data": { updated project }
-}
-```
-
-#### Delete Project
-```bash
-DELETE /api/projects/:id
-Authorization: (JWT cookie)
-
-Response (200):
-{
-  "success": true,
-  "message": "Project deleted"
-}
-```
-
-#### Delete Task
-```bash
-DELETE /api/tasks/:taskId
-Authorization: (JWT cookie)
-
-Response (200):
-{
-  "success": true,
-  "data": { updated project }
-}
-```
-
----
-
-## 🎯 Usage Guide
-
-### 1. First Time Setup
-
-1. Go to `http://localhost:5173`
-2. Click **"Launch Developer Console"**
-3. Enter password: **`1234`**
-4. Click **"Initialize New Workspace"**
-
-### 2. Create a Project
-
-1. Enter project name (e.g., "Website Redesign")
-2. Select methodology:
-   - **Waterfall** — Sequential phases (Requirements → Design → Implementation → Verification)
-   - **Agile** — Simple phases (Backlog → In Progress → Done)
-   - **Scrum** — Sprint-based (Sprint Planning → Current Sprint → Retrospective)
-   - **Kanban** — Continuous flow (To Do → Doing → Done)
-3. Click "Initialize & Build Sync Link"
-
-### 3. Manage Tasks
-
-- **Add Task** — Click on a phase, type task name, press Enter
-- **Change Status** — Click dropdown on task, select new status
-- **Delete Task** — Click trash icon on task
-- **Clear Phase** — Click "Wipe All Tasks" in phase header
-
-### 4. Share with Clients
-
-1. Click **"Share Stream Link"** button
-2. Copy URL (e.g., `http://localhost:5173/project/project_id`)
-3. Send to client
-4. Client sees read-only dashboard with live status
-
----
-
-## 🔐 Authentication Flow
-
-```
-1. User registers with email/password
-   ↓
-2. Password hashed with bcrypt (10 rounds)
-   ↓
-3. User stored in MongoDB
-   ↓
-4. User logs in
-   ↓
-5. Password verified against hash
-   ↓
-6. JWT token generated (24-hour expiry)
-   ↓
-7. Token stored in httpOnly cookie (secure against XSS)
-   ↓
-8. All API requests include JWT via cookie
-   ↓
-9. authMiddleware verifies token on every request
-   ↓
-10. Request allowed only if token valid
-```
+- **Password Hashing** — bcryptjs (10 salt rounds)
+- **JWT Tokens** — 24-hour expiration, httpOnly cookies
+- **XSS Protection** — httpOnly, Secure cookies
+- **CSRF Protection** — sameSite: strict
+- **Multi-Tenant** — Users can only access their own data
 
 ---
 
 ## 📊 Database Schema
 
-### User Schema
+**User:**
 ```javascript
-{
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-    lowercase: true,
-    trim: true
-  },
-  password: {
-    type: String,
-    required: true,
-    hashed: true  // bcrypt hashed
-  },
-  createdAt: Date,
-  updatedAt: Date
-}
+{ email, password (hashed), createdAt, updatedAt }
 ```
 
-### Project Schema
+**Project:**
 ```javascript
 {
-  projectName: String,
-  userId: ObjectId,  // Links to User
-  models: String,    // "Waterfall" | "Agile" | "Scrum" | "Kanban"
-  phases: [
-    {
-      phaseName: String,
-      tasks: [
-        {
-          id: String,
-          name: String,
-          status: "pending" | "progress" | "completed"
-        }
-      ]
-    }
-  ],
-  createdAt: Date,
-  updatedAt: Date
+  projectName,
+  user (owner),
+  models (Waterfall/Agile/Scrum/Kanban),
+  phases: [{ phaseName, tasks: [{ name, status }] }],
+  createdAt, updatedAt
 }
-```
-
----
-
-## 🔒 Security Features
-
-### Implemented Security
-
-1. **Password Security**
-   - Passwords hashed with bcryptjs (10 salt rounds)
-   - Secure comparison during login
-   - Never stored in plain text
-
-2. **JWT Authentication**
-   - 24-hour token expiration
-   - httpOnly cookies prevent XSS attacks
-   - `sameSite: strict` prevents CSRF attacks
-
-3. **Multi-Tenant Security**
-   - Each user can only access their own projects
-   - Server validates user ID on every request
-   - Cannot access other users' data
-
-4. **Network Security**
-   - CORS enabled with frontend whitelist
-   - Cookie credentials require same-origin
-   - Environment variables protect secrets
-
-### Recommendations for Production
-
-Before deploying to production:
-
-```javascript
-// In authRoutes.js, change:
-secure: false,  // ❌ Current (development)
-// TO:
-secure: true,   // ✅ Production (requires HTTPS)
-
-// Use strong JWT_SECRET (min 32 chars)
-JWT_SECRET=abcdefghijklmnopqrstuvwxyz123456
-
-// Enable HTTPS on your domain
-FRONTEND_URL=https://yourdomain.com
 ```
 
 ---
 
 ## 🚀 Deployment
 
-### Deploy Backend (Render, Heroku, Railway)
+### Frontend (Vercel)
+1. Connect GitHub repo to [Vercel](https://vercel.com)
+2. Set `VITE_API_URL=your_backend_url`
+3. Deploy!
 
-1. Push code to GitHub
-2. Create account on [Render](https://render.com) or [Railway](https://railway.app)
-3. Connect GitHub repository
-4. Set environment variables:
-   ```
-   MONGO_URI=your_production_mongodb
-   JWT_SECRET=strong_secret_key
-   FRONTEND_URL=your_frontend_url
-   NODE_ENV=production
-   PORT=5000
-   ```
-5. Deploy!
-
-### Deploy Frontend (Vercel, Netlify)
-
-1. Push to GitHub
-2. Connect repository to [Vercel](https://vercel.com)
-3. Set environment variables:
-   ```
-   VITE_API_URL=your_backend_url
-   VITE_ADMIN_PASSWORD=secure_password
-   ```
-4. Deploy!
+### Backend (Render)
+1. Connect GitHub repo to [Render](https://render.com)
+2. Set environment variables:
+   - `MONGO_URI` — MongoDB Atlas connection
+   - `JWT_SECRET` — Strong secret key
+   - `FRONTEND_URL` — Your frontend URL
+3. Deploy!
 
 ---
 
-## 🛣️ Future Improvements
+## 📝 Environment Variables
 
-- [ ] Add refresh token rotation for better security
-- [ ] Implement rate limiting on auth endpoints
-- [ ] Add email verification for new accounts
-- [ ] Create password reset functionality
-- [ ] Add project templates/presets
-- [ ] Implement team/collaboration features
-- [ ] Add activity logging/audit trail
-- [ ] Export projects to PDF/CSV
-- [ ] Dark/Light mode toggle
-- [ ] Real-time updates (Socket.io integration ready)
+### Backend `.env`
+```env
+PORT=5000
+NODE_ENV=development
+MONGO_URI=mongodb+srv://user:pass@cluster.mongodb.net/db
+JWT_SECRET=your_super_secret_key_min_32_characters
+FRONTEND_URL=http://localhost:5173
+```
+
+### Frontend `.env`
+```env
+VITE_API_URL=http://localhost:5000
+```
+
+---
+
+## 🛣️ Future Enhancements
+
+- [ ] Refresh token rotation
+- [ ] Rate limiting on auth
+- [ ] Email verification
+- [ ] Password reset
+- [ ] Team collaboration
+- [ ] Activity logging
+- [ ] PDF/CSV export
+- [ ] Real-time updates (Socket.io)
 
 ---
 
 ## 📄 License
 
-ISC License - See LICENSE file
+ISC License
 
 ---
 
@@ -591,17 +210,8 @@ ISC License - See LICENSE file
 **Deepak Singh**
 - GitHub: [@deepakdev88](https://github.com/deepakdev88)
 - Email: deepaksingh.dev88@gmail.com
+- Live: [scope-sync-virid.vercel.app](https://scope-sync-virid.vercel.app)
 
 ---
 
-## 🤝 Contributing
-
-Found a bug? Have a suggestion?
-
-1. Open an issue on [GitHub](https://github.com/deepakdev88/ScopeSync/issues)
-2. Describe the problem clearly
-3. Include steps to reproduce (if bug)
-
----
-
-**⭐ If you found this useful, please star the repository!**
+**⭐ Star this repo if you found it useful!**
