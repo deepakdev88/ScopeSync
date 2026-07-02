@@ -57,20 +57,20 @@ router.post('/login', async (req, res) => {
 
         //  FIX: Convert user._id to a clean primitive string representation
         const token = jwt.sign(
-            { id: user._id.toString() }, 
-            process.env.JWT_SECRET , 
+            { id: user._id.toString() },
+            process.env.JWT_SECRET,
             { expiresIn: '1d' }
         );
 
-        // Inject high-security HTTP-only payload block into browser context
+        const isProd = process.env.NODE_ENV === 'production';
+
         res.cookie('token', token, {
             httpOnly: true,
-            secure: false, // Set to true inside production deployment HTTPS environments
-            sameSite: 'strict',
+            secure: isProd,
+            sameSite: isProd ? 'none' : 'lax',
             path: '/',
-            maxAge: 24 * 60 * 60 * 1000 // 24 Hours lifespan scope duration limits
+            maxAge: 24 * 60 * 60 * 1000
         });
-
         return res.status(200).json({ success: true, message: "Authentication sequence established." });
     } catch (err) {
         return res.status(500).json({ success: false, message: "Internal server authentication interface error." });
