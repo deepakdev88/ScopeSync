@@ -62,14 +62,16 @@ router.post('/login', async (req, res) => {
             { expiresIn: '1d' }
         );
 
-        // Inject high-security HTTP-only payload block into browser context
-        res.cookie('token', token, {
-            httpOnly: true,
-            secure: false, // Set to true inside production deployment HTTPS environments
-            sameSite: 'strict',
-            path: '/',
-            maxAge: 24 * 60 * 60 * 1000 // 24 Hours lifespan scope duration limits
-        });
+        
+        const isProd = process.env.NODE_ENV === 'production';
+
+res.cookie('token', token, {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: isProd ? 'none' : 'lax',
+    path: '/',
+    maxAge: 24 * 60 * 60 * 1000
+});
 
         return res.status(200).json({ success: true, message: "Authentication sequence established." });
     } catch (err) {
