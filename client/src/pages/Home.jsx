@@ -160,7 +160,7 @@ const Home = () => {
             </div>
             <h3 className='text-lg font-bold text-gray-200 mb-2'>Secure Client Links</h3>
             <p className='text-sm text-gray-500 leading-relaxed'>
-              Generate read-only real-time tracking dashboards for clients with a single secure cryptographic URL click.
+              Generate read-only real-time tracking dashboards for clients with a single secure link.
             </p>
           </div>
 

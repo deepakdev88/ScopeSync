@@ -205,7 +205,7 @@ const ProjectDashboard = ({
                                                 </div>
                                             ) : (
                                                 phase.tasks.map((task) => (
-                                                    <div key={task._id} className='border border-white/2 bg-white/1 p-3 rounded-xl flex items-center justify-between gap-3 font-sans text-xs'>
+                                                    <div key={task._id || task.tempId} className='border border-white/2 bg-white/1 p-3 rounded-xl flex items-center justify-between gap-3 font-sans text-xs'>
                                                         <div className='flex items-center gap-2.5 min-w-0 truncate'>
                                                             <span className={`font-bold shrink-0 ${task.status === 'completed' ? 'text-emerald-500/70' : task.status === 'progress' ? 'text-blue-400' : 'text-gray-600'}`}>
                                                                 {task.status === 'completed' ? '✓' : task.status === 'progress' ? '●' : '○'}
@@ -320,7 +320,7 @@ const ProjectDashboard = ({
                                             ) : (
                                                 currentOpenPhase.tasks?.map((task) => (
                                                     <div
-                                                        key={task._id}
+                                                        key={task._id || task.tempId}
                                                         className='group border border-white/4 bg-[#111218]/50 p-4 rounded-xl flex items-center justify-between gap-6 hover:border-white/8 hover:bg-[#141620]/60 transition-all duration-150'
                                                     >
                                                         <div className='flex items-center gap-4 min-w-0 grow'>

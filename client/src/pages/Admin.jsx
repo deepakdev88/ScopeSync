@@ -128,7 +128,7 @@ const Admin = () => {
             if (phase.phaseName === phaseName) {
                 return {
                     ...phase,
-                    tasks: [...phase.tasks, { name: taskInput.trim(), status: "pending" }]
+                    tasks: [...phase.tasks, { tempId: crypto.randomUUID(), name: taskInput.trim(), status: "pending" }]
                 }
             }
             return phase
@@ -208,8 +208,8 @@ const Admin = () => {
         const updatedProject = { ...currentProject, phases: updatedPhases };
 
         // UI Update (For fast responses)
-        // setCurrentProject(updatedProject);
-        // setProjects(prev => prev.map((p) => p._id === currentProject._id ? updatedProject : p));
+        setCurrentProject(updatedProject);
+        setProjects(prev => prev.map((p) => p._id === currentProject._id ? updatedProject : p));
 
         // Database Update (Backend Sync)
         try {
@@ -445,6 +445,7 @@ const Admin = () => {
                                 <input
                                     type="email"
                                     placeholder='developer@scopesync.dev'
+                                    autoFocus
                                     className='w-full rounded-xl border border-white/6 bg-[#090a0f] p-3 text-sm text-gray-200 placeholder:text-gray-700 focus:outline-none focus:border-emerald-500/40 transition-colors duration-200'
                                     {...register("email", {
                                         required: "Email is required.",
@@ -574,8 +575,18 @@ const Admin = () => {
                             {/* Left Panel: Primary Actions (2 Columns) */}
                             <div className='md:col-span-2 p-8 flex flex-col justify-between bg-white/1 border-b md:border-b-0 md:border-r border-white/4'>
                                 <div className='space-y-4'>
-                                    <div className='w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 font-mono text-sm font-bold'>
-
+                                    <div className='w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 shrink-0'>
+                                        <svg
+                                            className="w-4 h-4"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth="2.5"
+                                            viewBox="0 0 24 24"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                        >
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                            <circle cx="12" cy="12" r="2.5" />
+                                        </svg>
                                     </div>
                                     <div className='space-y-1.5'>
                                         <h2 className='text-xl font-extrabold tracking-tight text-white'>
@@ -614,7 +625,7 @@ const Admin = () => {
                                         <div className='grow flex flex-col items-center justify-center py-12 text-center opacity-40'>
                                             <svg
                                                 fill="#9ca3af"
-                                                className="w-8 h-8 shrink-0" 
+                                                className="w-8 h-8 shrink-0"
                                                 viewBox="0 0 26.901 26.901"
                                                 version="1.1"
                                                 id="Capa_1"
@@ -670,7 +681,7 @@ const Admin = () => {
 
                                                     <button
                                                         onClick={() => deleteProject(value._id)}
-                                                        className='text-xs font-semibold text-gray-500 hover:text-red-400 px-3 py-1.5 rounded-lg hover:bg-red-500/10 opacity-0 group-hover:opacity-100 transition-all duration-150 shrink-0'
+                                                        className='text-xs font-semibold text-gray-500 hover:text-red-400 px-3 py-1.5 rounded-lg hover:bg-red-500/10  group-hover:opacity-100 transition-all duration-150 shrink-0'
                                                     >
                                                         Delete
                                                     </button>
@@ -691,7 +702,7 @@ const Admin = () => {
                                             >
 
                                                 <svg
-                                                    className="w-3.5 h-3.5 opacity-40 group-hover:opacity-90 group-hover:scale-105 transition-all duration-150"
+                                                    className="w-3.5 h-3.5 opacity-80 group-hover:opacity-90 group-hover:scale-105 transition-all duration-150"
                                                     fill="none"
                                                     stroke="currentColor"
                                                     viewBox="0 0 24 24"
