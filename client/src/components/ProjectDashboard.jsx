@@ -10,28 +10,29 @@ const ProjectDashboard = ({
     handleClearAllTasks,
     handleStatusChange,
     handleDeleteTask,
-    setIsInitWindow
+    setIsInitWindow,
+    setCurrentProject
 }) => {
 
     // UI Local States
     const [openPhaseName, setOpenPhaseName] = useState(null);
     const [activeStatusMenu, setActiveStatusMenu] = useState(null);
-    const [isDropUp, setIsDropUp] = useState(false); // SMART PLACEMENT BUG FIX
+    const [isDropUp, setIsDropUp] = useState(false);
 
-    // Dynamic reactive mapping for the expanded modal workspace
+
     const currentOpenPhase = project?.phases?.find(p => p.phaseName === openPhaseName);
 
     const copyToClipBoard = () => {
         const link = `${window.location.origin}/project/${project._id}`
         navigator.clipboard.writeText(link)
-        toast.success("Secure tracking link synced! 🔗", {
+        toast.success("Link copied!", {
             style: { background: '#13151a', color: '#f3f4f6', border: '1px solid #2a2d35' }
         });
     }
 
-    // Smart Dropdown Position Calculator
+
     const handleStatusMenuToggle = (e, taskId) => {
-        e.stopPropagation(); // Prevents modal from closing or doing weird bubbling
+        e.stopPropagation();
 
         if (activeStatusMenu === taskId) {
             setActiveStatusMenu(null);
@@ -46,7 +47,7 @@ const ProjectDashboard = ({
         }
     };
 
-    // Helper to extract clean time from DB timestamps dynamically
+
     const getSystemTime = (dbDate) => {
         if (!dbDate) return "Live Synced";
         try {
@@ -70,7 +71,7 @@ const ProjectDashboard = ({
             {project && (
                 <div className='w-full min-h-screen bg-[#090a0f] text-gray-300 flex flex-col relative overflow-hidden selection:bg-emerald-500/30 selection:text-emerald-300'>
 
-                    {/* Background Soft Ambient Lights */}
+
                     <div className='absolute top-[-10%] right-[-5%] w-125 h-125 bg-emerald-500/2 blur-[140px] rounded-full pointer-events-none'></div>
                     <div className='absolute bottom-[-10%] left-[-5%] w-100 h-100 bg-blue-500/2 blur-[120px] rounded-full pointer-events-none'></div>
 
@@ -81,34 +82,34 @@ const ProjectDashboard = ({
                             {/* TOP ROW: Contextual Navigation Controls */}
                             <div className='flex items-center justify-between border-b border-white/4 pb-3 w-full'>
                                 {/* Dynamic Back Navigation */}
-                                {isAdmin && 
-                                (<button
-                                    type="button"
-                                    onClick={() => {
-                                        setIsInitWindow(true);          // Dashboard main window active
-                                        project(null);       // Current project view close / false
-                                    }}
-                                    className='inline-flex items-center gap-1.5 text-xs font-mono text-gray-500 hover:text-gray-200 transition-colors group cursor-pointer'
-                                >
-                                    <svg className="w-3.5 h-3.5 transform group-hover:-translate-x-0.5 transition-transform duration-150" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                                    </svg>
-                                    <span>Back to Dashboard</span>
-                                </button>)}
+                                {isAdmin &&
+                                    (<button
+                                        type="button"
+                                        onClick={() => {
+                                            setIsInitWindow(true);          // Dashboard main window active
+                                            setCurrentProject(null);       // Current project view close / false
+                                        }}
+                                        className='inline-flex items-center gap-1.5 text-xs font-mono text-gray-500 hover:text-gray-200 transition-colors group cursor-pointer'
+                                    >
+                                        <svg className="w-3.5 h-3.5 transform group-hover:-translate-x-0.5 transition-transform duration-150" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                                        </svg>
+                                        <span>Back to Dashboard</span>
+                                    </button>)}
 
-                                {/* Restricted Sign Out - Rendered exclusively for Administrators */}
-                                {/* Restricted Sign Out - Rendered exclusively for Administrators with Premium Micro-interaction */}
+
+
                                 {isAdmin && (
                                     <button
                                         type="button"
                                         onClick={() => {
-                                            // Hard flush target cookie session mapping and force secure contextual reload
+
                                             document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
                                             window.location.href = "/admin";
                                         }}
                                         className='inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-white/4 bg-white/1 hover:bg-red-500/4 hover:border-red-500/20 text-[11px] font-sans font-medium text-gray-500 hover:text-red-400 shadow-[0_2px_10px_rgba(0,0,0,0.2)] transition-all duration-200 cursor-pointer group'
                                     >
-                                        {/* Sleek Minimalist Log Out Micro-Icon */}
+
                                         <svg
                                             className="w-3.5 h-3.5 opacity-50 group-hover:opacity-90 transition-opacity duration-200"
                                             fill="none"
@@ -126,16 +127,16 @@ const ProjectDashboard = ({
                             <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 w-full'>
                                 <div className='flex items-center gap-4 flex-wrap min-w-0'>
                                     <h1 className='text-xl font-extrabold tracking-tight text-white truncate'>{project.projectName}</h1>
-                                    <span className='text-[10px] font-mono font-bold tracking-wider uppercase text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded border border-emerald-500/20'>{project.models} Core</span>
+                                    <span className='text-[10px] font-mono font-bold tracking-wider uppercase text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded border border-emerald-500/20'>{project.models}</span>
                                     <span className={`inline-flex items-center gap-1.5 text-[10px] font-mono font-medium px-2 py-0.5 rounded border ${isAdmin ? 'bg-blue-500/10 text-blue-400 border-blue-500/20 animate-pulse' : 'bg-purple-500/10 text-purple-400 border-purple-500/20 animate-pulse'}`}>
                                         <span className={`w-1 h-1 rounded-full ${isAdmin ? 'bg-blue-400' : 'bg-purple-400'}`}></span>
-                                        {isAdmin ? 'Developer Management Console' : 'Client Live Gateway'}
+                                        {isAdmin ? 'Admin View' : 'Shared View'}
                                     </span>
                                 </div>
                                 {isAdmin && (
                                     <button onClick={copyToClipBoard} className='inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-white/8 bg-white/2 hover:bg-white/6 hover:border-white/15 text-xs font-semibold text-gray-200 transition-all duration-200'>
                                         <svg className="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" /></svg>
-                                        Share Stream Link
+                                        Share Link
                                     </button>
                                 )}
                             </div>
@@ -144,7 +145,7 @@ const ProjectDashboard = ({
                     </header>
 
                     {/* UPPER SUMMARY PANEL */}
-                    <section className='w-full max-w-7xl mx-auto px-6 pt-6 grid grid-cols-3 gap-4 shrink-0'>
+                    <section className='w-full max-w-7xl mx-auto px-6 pt-6 grid grid-cols-1 sm:grid-cols-3 gap-4 shrink-0'>
                         {['Completed', 'In Progress', 'Pending'].map((metric, i) => {
                             const colors = ['text-emerald-400 border-emerald-500/10 bg-emerald-500/[0.02]', 'text-blue-400 border-blue-500/10 bg-blue-500/[0.02]', 'text-gray-400 border-white/[0.06] bg-white/[0.01]'];
                             const count = project.phases.flatMap(p => p.tasks).filter(t =>
@@ -153,7 +154,7 @@ const ProjectDashboard = ({
                             ).length;
                             return (
                                 <div key={metric} className={`border p-3 rounded-xl flex items-center justify-between font-mono text-[11px] ${colors[i]}`}>
-                                    <span className='font-medium opacity-90'>{metric} Deliverables</span>
+                                    <span className='font-medium opacity-90'>{metric}</span>
                                     <span className='font-bold text-sm bg-white/2 border border-white/4 px-2 py-0.5 rounded'>{count}</span>
                                 </div>
                             );
@@ -180,7 +181,28 @@ const ProjectDashboard = ({
                                         {/* Tasks Queue List Area */}
                                         <div className='grow overflow-y-auto p-4 flex flex-col gap-2 custom-scrollbar pointer-events-none'>
                                             {phase.tasks.length === 0 ? (
-                                                <div className='grow flex flex-col items-center justify-center text-center p-6 opacity-40 border border-dashed border-white/5 rounded-xl my-auto font-mono text-[10px] text-gray-500'>Empty Scope Registry</div>
+                                                <div className='grow flex flex-col items-center justify-center py-12 text-center opacity-40'>
+                                                    <svg
+                                                        fill="#9ca3af"
+                                                        className="w-8 h-8 shrink-0"
+                                                        viewBox="0 0 26.901 26.901"
+                                                        version="1.1"
+                                                        id="Capa_1"
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        xmlnsXlink="http://www.w3.org/1999/xlink"
+                                                        xmlSpace="preserve"
+                                                    >
+                                                        <g id="SVGRepo_bgCarrier" strokeWidth="0" />
+                                                        <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round" />
+                                                        <g id="SVGRepo_iconCarrier">
+                                                            <g>
+                                                                <path d="M24.514,6.516H21.47v2.07h1.399c0.713,0,1.292,0.578,1.292,1.291v13.66c0,0.715-0.579,1.295-1.292,1.295H9.948 c-0.713,0-1.29-0.58-1.29-1.295v-1.398H6.683v3.139c0,0.896,0.725,1.623,1.62,1.623h16.211c0.894,0,1.619-0.727,1.619-1.623V8.137 C26.133,7.244,25.409,6.516,24.514,6.516z" />
+                                                                <path d="M20.218,18.76V1.621C20.218,0.728,19.49,0,18.598,0H2.386C1.491,0,0.767,0.729,0.767,1.621V18.76 c0,0.898,0.724,1.623,1.619,1.623h16.212C19.492,20.383,20.218,19.658,20.218,18.76z" />
+                                                            </g>
+                                                        </g>
+                                                    </svg>
+                                                    <p className='text-xs text-gray-400 font-mono'>No tasks yet.</p>
+                                                </div>
                                             ) : (
                                                 phase.tasks.map((task) => (
                                                     <div key={task._id} className='border border-white/2 bg-white/1 p-3 rounded-xl flex items-center justify-between gap-3 font-sans text-xs'>
@@ -203,7 +225,7 @@ const ProjectDashboard = ({
                                         {/* Column Footer */}
                                         <div className='p-3.5 border-t border-white/4 bg-black/10 flex justify-between items-center text-[10px] font-mono text-gray-500 shrink-0 select-none'>
                                             <span className='text-emerald-500/60 group-hover/column:text-emerald-400 transition-colors font-semibold font-sans'>
-                                                {isAdmin ? '→ Open Workspace' : '→ View Metrics'}
+                                                {isAdmin ? '→ Open' : '→ View'}
                                             </span>
                                             <span className='text-gray-400 group-hover/column:text-gray-400 transition-colors'>
                                                 {getSystemTime(project.updatedAt)}
@@ -215,17 +237,17 @@ const ProjectDashboard = ({
                         </div>
                     </main>
 
-                    {/* 2. THE FLOATING WORKSPACE OVERLAY  */}
+
                     {currentOpenPhase && (
                         <div className='fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#050608]/80 backdrop-blur-md animate-fade-in' onClick={() => setOpenPhaseName(null)}>
                             <div className='w-full max-w-4xl h-[85vh] border border-white/8 bg-[#0d0e14] rounded-2xl shadow-[0_30px_80px_rgba(0,0,0,0.9)] overflow-hidden relative z-50 animate-scale-up text-left flex flex-col' onClick={(e) => e.stopPropagation()}>
 
                                 {/* Modal Header */}
-                                <div className='p-6 border-b border-white/5 bg-white/1 flex justify-between items-center shrink-0'>
+                                <div className='p-6 border-b border-white/5 bg-white/1 flex flex-col sm:flex-row justify-between sm:items-center gap-3 shrink-0'>
                                     <div className='flex items-center gap-3 min-w-0'>
                                         <div className='w-2.5 h-2.5 rounded-full bg-emerald-500/40 animate-pulse'></div>
                                         <h2 className='text-lg font-extrabold tracking-tight text-white truncate'>
-                                            {currentOpenPhase.phaseName} <span className='text-gray-400 font-normal font-sans text-sm ml-2'>/ Pipeline Workspace</span>
+                                            {currentOpenPhase.phaseName}
                                         </h2>
                                     </div>
                                     <div className='flex items-center gap-4'>
@@ -234,10 +256,10 @@ const ProjectDashboard = ({
                                                 onClick={() => { handleClearAllTasks(currentOpenPhase.phaseName); setOpenPhaseName(null); }}
                                                 className='text-xs font-mono font-bold uppercase text-red-400 hover:text-red-300 transition-colors border border-red-500/20 bg-red-500/5 px-3 py-1.5 rounded-xl'
                                             >
-                                                Wipe All Tasks
+                                                Delete All
                                             </button>
                                         )}
-                                        <button onClick={() => setOpenPhaseName(null)} className='text-gray-400 hover:text-white font-mono text-sm border border-white/6 bg-white/2 px-2.5 py-1 rounded-lg transition-all'>Escape [x]</button>
+                                        <button onClick={() => setOpenPhaseName(null)} className='text-gray-400 hover:text-white font-mono text-sm border border-white/6 bg-white/2 px-2.5 py-1 rounded-lg transition-all'>Close</button>
                                     </div>
                                 </div>
 
@@ -248,8 +270,8 @@ const ProjectDashboard = ({
                                     {isAdmin && (
                                         <div className='w-full md:w-80 border-b md:border-b-0 md:border-r border-white/4 p-6 bg-black/8 flex flex-col gap-4 shrink-0'>
                                             <div className='space-y-1'>
-                                                <h3 className='text-xs font-bold tracking-widest text-gray-400 uppercase font-mono'>Register New Deliverable</h3>
-                                                <p className='text-[11px] text-gray-500 leading-normal'>Incorporate atomic task tokens into this running framework phase pipeline environment.</p>
+                                                <h3 className='text-xs font-bold tracking-widest text-gray-400 uppercase font-mono'>Add Task</h3>
+                                                <p className='text-[11px] text-gray-500 leading-normal'>Add a new task to this phase.</p>
                                             </div>
                                             <form onSubmit={(e) => handleTasksSubmit(e, currentOpenPhase.phaseName)} className='w-full'>
                                                 <input
@@ -267,14 +289,33 @@ const ProjectDashboard = ({
                                     {/* Right Panel: Tasks List Area */}
                                     <div className='grow p-6 flex flex-col overflow-hidden bg-white/0.5'>
                                         <div className='flex justify-between items-center text-[10px] font-mono tracking-widest text-gray-400 uppercase border-b border-white/2 pb-3 mb-4 shrink-0'>
-                                            <span>Active Nodes Registry</span>
-                                            <span>{currentOpenPhase.tasks?.length || 0} Total Stacks</span>
+                                            <span>Tasks</span>
+                                            <span>{currentOpenPhase.tasks?.length || 0} Tasks</span>
                                         </div>
 
                                         <div className='grow overflow-y-auto pr-1 custom-scrollbar flex flex-col gap-3'>
                                             {currentOpenPhase.tasks?.length === 0 ? (
-                                                <div className='grow flex flex-col items-center justify-center text-center opacity-40 border border-dashed border-white/6 rounded-2xl p-12 my-auto font-mono text-xs text-gray-500'>
-                                                    No task architectures mapped into this execution block matrix.
+                                                <div className='grow flex flex-col items-center justify-center py-12 text-center opacity-40'>
+                                                    <svg
+                                                        fill="#9ca3af"
+                                                        className="w-8 h-8 shrink-0"
+                                                        viewBox="0 0 26.901 26.901"
+                                                        version="1.1"
+                                                        id="Capa_1"
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        xmlnsXlink="http://www.w3.org/1999/xlink"
+                                                        xmlSpace="preserve"
+                                                    >
+                                                        <g id="SVGRepo_bgCarrier" strokeWidth="0" />
+                                                        <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round" />
+                                                        <g id="SVGRepo_iconCarrier">
+                                                            <g>
+                                                                <path d="M24.514,6.516H21.47v2.07h1.399c0.713,0,1.292,0.578,1.292,1.291v13.66c0,0.715-0.579,1.295-1.292,1.295H9.948 c-0.713,0-1.29-0.58-1.29-1.295v-1.398H6.683v3.139c0,0.896,0.725,1.623,1.62,1.623h16.211c0.894,0,1.619-0.727,1.619-1.623V8.137 C26.133,7.244,25.409,6.516,24.514,6.516z" />
+                                                                <path d="M20.218,18.76V1.621C20.218,0.728,19.49,0,18.598,0H2.386C1.491,0,0.767,0.729,0.767,1.621V18.76 c0,0.898,0.724,1.623,1.619,1.623h16.212C19.492,20.383,20.218,19.658,20.218,18.76z" />
+                                                            </g>
+                                                        </g>
+                                                    </svg>
+                                                    <p className='text-xs text-gray-400 font-mono'>No tasks yet.</p>
                                                 </div>
                                             ) : (
                                                 currentOpenPhase.tasks?.map((task) => (
@@ -290,13 +331,13 @@ const ProjectDashboard = ({
                                                                 <span className={`text-sm font-semibold wrap-break-word leading-relaxed ${task.status === 'completed' ? 'text-gray-400 opacity-60 font-normal' : 'text-gray-200'}`}>
                                                                     {task.name}
                                                                 </span>
-                                                                <span className='text-[10px] font-mono text-gray-500 select-all'>node_hash: {task._id}</span>
+
                                                             </div>
                                                         </div>
 
                                                         <div className='flex items-center gap-4 shrink-0'>
                                                             {isAdmin ? (
-                                                                /* Custom Smart Dropdown Menu Component Trigger */
+
                                                                 <div className="relative">
                                                                     <button
                                                                         type="button"
@@ -310,12 +351,7 @@ const ProjectDashboard = ({
                                                                     </button>
 
                                                                     {activeStatusMenu === task._id && (
-                                                                        /* 
-                                                                           BUG RESOLVED HERE:
-                                                                           Dynamically checking `isDropUp` boolean value to swap alignments.
-                                                                           If true -> opens upwards using `bottom-full mb-2`.
-                                                                           If false -> opens downwards using `top-full mt-2`.
-                                                                        */
+
                                                                         <div className={`absolute right-0 z-50 w-32 rounded-xl border border-white/8 bg-[#14161f] shadow-2xl overflow-hidden font-sans text-xs animate-fade-in ${isDropUp ? 'bottom-full mb-2' : 'top-full mt-2'
                                                                             }`}>
                                                                             {[['pending', 'Pending'], ['progress', 'In Progress'], ['completed', 'Completed']].map(([v, l]) => (

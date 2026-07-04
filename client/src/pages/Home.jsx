@@ -1,6 +1,7 @@
 import React from 'react'
 import Navbar from "../components/Navbar"
 import { NavLink } from 'react-router'
+import Footer from '../components/Footer'
 
 const Home = () => {
   return (
@@ -16,7 +17,7 @@ const Home = () => {
       {/* 1. HERO SECTION */}
       <header className='pt-20 pb-12 flex flex-col items-center justify-center px-4 max-w-4xl mx-auto text-center relative z-10'>
         <div className='inline-flex items-center gap-2 px-3 py-1 rounded-full border border-emerald-500/20 bg-emerald-500/5 text-xs text-emerald-400 font-medium mb-6 select-none animate-pulse'>
-          ✨ Production Ready Dashboard
+           Production Ready Dashboard
         </div>
 
         <h1 className='text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-transparent bg-clip-text bg-linear-to-b from-white to-gray-400 leading-tight mb-4'>
@@ -46,17 +47,17 @@ const Home = () => {
           {/* Top Bar Mimicking Browser Window */}
           <div className='flex items-center justify-between border-b border-white/4 pb-3 mb-4'>
             <div className='flex gap-1.5'>
-              <span className='w-3 h-3 rounded-full bg-white/8'></span>
-              <span className='w-3 h-3 rounded-full bg-white/8'></span>
-              <span className='w-3 h-3 rounded-full bg-white/8'></span>
+              <span className='w-3 h-3 rounded-full bg-white/10'></span>
+              <span className='w-3 h-3 rounded-full bg-white/10'></span>
+              <span className='w-3 h-3 rounded-full bg-white/10'></span>
             </div>
             <div className='text-[11px] text-gray-600 font-mono bg-[#090a0f] px-4 py-0.5 rounded-md border border-white/2 select-none'>
-              scopesync.dev/admin/workspace
+              scope-sync.app/admin
             </div>
             <div className='w-12'></div>
           </div>
 
-          {/* Minimalist Visual Simulation of Dashboard */}
+          
           {/* Minimalist Visual Simulation of Dashboard */}
           <div className='w-full grid grid-cols-1 md:grid-cols-3 gap-4 p-2 text-left text-xs font-sans group-hover:opacity-100 transition-opacity duration-300'>
 
@@ -146,7 +147,7 @@ const Home = () => {
             </div>
             <h3 className='text-lg font-bold text-gray-200 mb-2'>Instant Scoping</h3>
             <p className='text-sm text-gray-500 leading-relaxed'>
-              Initialize workspaces instantly using Agile, Scrum, Kanban, or Waterfall methodology blueprints with zero setup.
+              Create projects instantly using Agile, Scrum, Kanban, or Waterfall methodology blueprints with zero setup.
             </p>
           </div>
 
@@ -170,9 +171,9 @@ const Home = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
               </svg>
             </div>
-            <h3 className='text-lg font-bold text-gray-200 mb-2'>Anti-Spam Engine</h3>
+            <h3 className='text-lg font-bold text-gray-200 mb-2'>Isolated User Data</h3>
             <p className='text-sm text-gray-500 leading-relaxed'>
-              Natively optimized pipeline handlers prevent state collision and duplicate API requests seamlessly.
+              Every request is scoped to the authenticated user - your projects, tasks, and data are never visible to anyone else on the platform.
             </p>
           </div>
 
@@ -185,7 +186,7 @@ const Home = () => {
           Ready to Sync Your Project Scope?
         </h2>
         <p className='text-sm text-gray-500 max-w-md mx-auto mb-6'>
-          Deploy your clean developer console workspace in seconds and give your clients instant status clarity.
+          Deploy your clean developer console in seconds and give your clients instant status clarity.
         </p>
         <NavLink
           to="/admin"
@@ -195,15 +196,7 @@ const Home = () => {
         </NavLink>
       </section>
 
-      {/* 5. MINIMALIST METRICS FOOTER */}
-      <footer className='w-full max-w-6xl mx-auto px-6 py-12 border-t border-white/4 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-gray-600 relative z-10'>
-        <div>© 2026 ScopeSync Inc. Built by Devs, for Devs.</div>
-        <div className='flex gap-4'>
-          <span className='hover:text-gray-400 cursor-pointer transition-colors'>Security</span>
-          <span className='hover:text-gray-400 cursor-pointer transition-colors'>Privacy Policy</span>
-          <span className='hover:text-gray-400 cursor-pointer transition-colors'>Terms of Service</span>
-        </div>
-      </footer>
+      <Footer/>
 
     </div>
   )

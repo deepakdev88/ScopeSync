@@ -12,8 +12,8 @@ const Admin = () => {
     const [isInitWindow, setIsInitWindow] = useState(false)
     const [projects, setProjects] = useState([])
 
-    const [isProjectWizard, setisProjectWizard] = useState(false)
-    const [isFinalWizard, setisFinalWizard] = useState(false)
+    const [isProjectWizard, setIsProjectWizard] = useState(false)
+    const [isFinalWizard, setIsFinalWizard] = useState(false)
     const [currentProject, setCurrentProject] = useState(null)
     const [activePhase, setActivePhase] = useState(null)
     const [taskInput, setTaskInput] = useState("")
@@ -34,10 +34,10 @@ const Admin = () => {
 
 
 
-    // Dynamic authenti cation handler to orchestrate both sign-up and log-in procedures
+
     const handleAuth = async (data) => {
 
-        console.log(data)
+
         const endpoint = isRegister ? 'register' : 'login';
         try {
             const res = await fetch(`${API_URL}/api/auth/${endpoint}`, {
@@ -52,29 +52,29 @@ const Admin = () => {
             if (result.success) {
                 if (isRegister) {
                     // Flow path for successful user registration
-                    toast.success("Account successfully created. Proceeding to login screen.");
+                    toast.success("Account successfully created! Please log in.");
                     setIsRegister(false); // Seamlessly flip back to login view context
                     reset();
                 } else {
                     // Flow path for successful user login authentication
-                    toast.success("Authentication validated successfully.");
+                    toast.success("Logged in successfully.");
                     setIsAuth(true);
                     setIsInitWindow(true);
-                    fetchProjects(); // Hydrate user-isolated repository stacks
+                    fetchProjects();
                     reset();
                 }
             } else {
-                toast.error(result.message || "Authentication baseline parameters rejected.");
+                toast.error(result.message || "Incorrect email or password.");
             }
         } catch (error) {
             console.error("Critical authentication interface connection failure:", error);
-            toast.error("Network anomaly detected. Authentication gateway unreachable.");
+            toast.error("Couldn't connect to the server. Check your internet and try again");
         }
     };
 
     const handleProjectWizard = (data) => {
-        setisFinalWizard(true)
-        setisProjectWizard(false)
+        setIsFinalWizard(true)
+        setIsProjectWizard(false)
     }
 
     const handleModelsWizard = async (data) => {
@@ -100,18 +100,18 @@ const Admin = () => {
             })
 
             const result = await res.json()
-            console.log("from backend for fornted,", result)
+
             if (result.success) {
                 const savedProject = result.data;
                 setProjects(prev => [...prev, savedProject])
                 setCurrentProject(savedProject)
-                setisFinalWizard(false)
+                setIsFinalWizard(false)
                 reset()
-                console.log("saved successfull", savedProject)
+
             }
         } catch (error) {
             console.error("fetch error ", error)
-            toast.error('Sorry unable to connect.')
+            toast.error("Couldn't save the project. Try again.")
         }
     }
 
@@ -154,7 +154,7 @@ const Admin = () => {
             if (result.success) {
                 // Remove form UI
                 setProjects(prev => prev.filter(p => p._id !== id));
-                // Agar delete kiya hua project hi open tha, toh dashboard band kar do
+                // If thr deleted project was the currently open one, close the dashboard
                 if (currentProject?._id === id) {
                     setCurrentProject(null);
                     setIsInitWindow(true);
@@ -168,17 +168,17 @@ const Admin = () => {
     const deleteProject = (id) => {
         toast((t) => (
             <div className="flex flex-col gap-2 p-1">
-                <span className="text-sm font-bold text-red-600"> DANGER ZONE</span>
-                <span className="text-xs text-gray-400">This action is irreversible. All project data will be permanently lost. Proceed??</span>
+                <span className="text-sm font-bold text-red-600"> Delete Project</span>
+                <span className="text-xs text-gray-400">This will permanently delete all project data. This cannot be undone</span>
                 <div className="flex gap-2 justify-end mt-1">
                     <button onClick={() => toast.dismiss(t.id)} className="bg-gray-100 text-gray-700 text-xs px-3 py-1.5 font-medium rounded-lg hover:bg-gray-200 transition">Cancel</button>
-                    <button onClick={() => { toast.dismiss(t.id); executeDeleteProject(id); }} className="bg-red-600 text-white text-xs px-3 py-1.5 font-medium rounded-lg hover:bg-red-700 transition">Confirm Delete</button>
+                    <button onClick={() => { toast.dismiss(t.id); executeDeleteProject(id); }} className="bg-red-500 text-white text-xs px-3 py-1.5 font-medium rounded-lg hover:bg-red-700 transition">Confirm Delete</button>
                 </div>
             </div>
         ), { id: `confirm-project-${id}`, duration: Infinity, position: "top-center" });
     };
 
-    // All Tasks in a Specific Phase
+    // Clear all tasks in this phase
     const executeClearAllTasks = (phaseName) => {
         const updatedPhases = currentProject.phases.map((phase) => {
             if (phase.phaseName === phaseName) {
@@ -191,6 +191,7 @@ const Admin = () => {
     }
 
     const handleClearAllTasks = (phaseName) => {
+        toast.dismiss()
         toast((t) => (
             <div className="flex flex-col gap-2 p-1">
                 <span className="text-sm font-medium text-gray-400">Are you sure you want to clear all tasks in this phase?</span>
@@ -202,13 +203,13 @@ const Admin = () => {
         ), { id: `confirm-clear-${phaseName}`, duration: Infinity });
     };
 
-    // Helper function for avoiding repetative work
+    // Updates project state and syncs with backend
     const updateProjectState = async (updatedPhases) => {
         const updatedProject = { ...currentProject, phases: updatedPhases };
 
         // UI Update (For fast responses)
-        setCurrentProject(updatedProject);
-        setProjects(prev => prev.map((p) => p._id === currentProject._id ? updatedProject : p));
+        // setCurrentProject(updatedProject);
+        // setProjects(prev => prev.map((p) => p._id === currentProject._id ? updatedProject : p));
 
         // Database Update (Backend Sync)
         try {
@@ -223,7 +224,7 @@ const Admin = () => {
                 setCurrentProject(result.data);
                 setProjects(prev => prev.map((p) => p._id === currentProject._id ? result.data : p));
             }
-            console.log("DB Updated!");
+
         } catch (err) {
             console.error("Database sync failed:", err);
 
@@ -231,7 +232,8 @@ const Admin = () => {
     };
 
     const handleStatusChange = (phaseName, newStatus, _id) => {
-        console.log(phaseName, newStatus, _id)
+
+
         const updatedPhases = currentProject.phases.map((phase) => {
             if (phase.phaseName === phaseName) {
                 return {
@@ -256,9 +258,9 @@ const Admin = () => {
 
     // Handle tasks deletion
     const executeDeleteTask = async (taskId, projectId) => {
-        if (!taskId) return toast.error("Invalid Task id refresh the page.");
-
-        const toastId = toast.loading("Task Loading...");
+        if (!taskId) return toast.error("Something went wrong. Please refresh the page.");
+        toast.dismiss()
+        const toastId = toast.loading("Deleting...");
 
         try {
             const res = await fetch(`${API_URL}/api/tasks/${taskId}`, {
@@ -267,7 +269,7 @@ const Admin = () => {
             });
 
             const result = await res.json();
-            console.log("Backend response:", result);
+
 
             if (result.success) {
                 // 1. Update projects array 
@@ -299,7 +301,8 @@ const Admin = () => {
 
                 toast.success("Task deleted successfully", { id: toastId });
             } else {
-                toast.error(`Something went wrong: ${result.message}`, { id: toastId });
+                console.error(result.message)
+                toast.error("Something went wrong. Please try again.", { id: toastId });
             }
         } catch (error) {
             toast.error("Network issue!", { id: toastId });
@@ -307,14 +310,14 @@ const Admin = () => {
     };
 
     const handleDeleteTask = (taskId, projectId) => {
-        if (!taskId) return toast.error("Bhai, taskId nahi mili!");
-
+        if (!taskId) return toast.error("Unable to delete task. Please refresh the page and try again.");
+        toast.dismiss()
         toast((t) => (
             <div className="flex flex-col gap-2 p-1">
-                <span className="text-sm font-medium text-gray-400">Do you really want to delete this task? </span>
+                <span className="text-sm font-medium text-gray-400">Delete this task? This can't be undone.</span>
                 <div className="flex gap-2 justify-end mt-1">
-                    <button onClick={() => toast.dismiss(t.id)} className="bg-gray-100 text-gray-700 text-xs px-3 py-1.5 font-medium rounded-lg hover:bg-gray-200 transition">No</button>
-                    <button onClick={() => { toast.dismiss(t.id); executeDeleteTask(taskId, projectId); }} className="bg-red-500 text-white text-xs px-3 py-1.5 font-medium rounded-lg hover:bg-red-600 transition">Yes</button>
+                    <button onClick={() => toast.dismiss(t.id)} className="bg-gray-100 text-gray-700 text-xs px-3 py-1.5 font-medium rounded-lg hover:bg-gray-200 transition">Cancel</button>
+                    <button onClick={() => { toast.dismiss(t.id); executeDeleteTask(taskId, projectId); }} className="bg-red-500 text-white text-xs px-3 py-1.5 font-medium rounded-lg hover:bg-red-600 transition">Delete</button>
                 </div>
             </div>
         ), { id: `confirm-task-${taskId}`, duration: Infinity, position: "top-center" });
@@ -335,7 +338,7 @@ const Admin = () => {
                 console.warn("Authorization verification failed:", result.message);
                 setIsAuth(false); // Route the user back to the clean login state
             }
-            console.log("from backend for fronted again,", result)
+
         } catch (err) {
             console.error("Project repository data extraction routine failure:", err);
             setLoading(false)
@@ -344,8 +347,8 @@ const Admin = () => {
         }
     };
 
-    // Secure front-end pipeline handler to clear atomic collections database registers
-    const handleWipeDatabase = async () => {
+
+    const handleDeleteDatabase = async () => {
 
 
         try {
@@ -357,16 +360,16 @@ const Admin = () => {
             const result = await res.json();
 
             if (result.success) {
-                toast.success("All personal database logs have been structurally cleared.");
+                toast.success("All your projects have been deleted.");
                 setProjects([]); // Flush the state context on the UI instantly
                 setShowWipeConfirm(false);
             } else {
                 console.error("Records removal routine rejected by server:", result.message);
-                toast.error(result.message || "Database clean processing routine encountered an error.");
+                toast.error(result.message || "Couldn't delete your data. Please try again.");
             }
         } catch (error) {
             console.error("Network exception detected during bulk delete sequence:", error);
-            toast.error("Network communication breakdown. Server was unreachable.");
+            toast.error("Couldn't connect to the server. Check your internet and try again");
         }
     };
 
@@ -377,7 +380,7 @@ const Admin = () => {
     if (!isAuth) {
         return (
             <>
-                {/* Immersive notification portal matched with the application color scheme */}
+
                 <Toaster
                     position="top-center"
                     toastOptions={{
@@ -406,14 +409,14 @@ const Admin = () => {
 
                 <div className='w-full min-h-screen bg-[#090a0f] text-gray-300 flex flex-col items-center justify-center relative overflow-hidden selection:bg-emerald-500/30 selection:text-emerald-300 font-sans antialiased'>
 
-                    {/* Shared Background Ambient Glows inherited from Home structure */}
+
                     <div className='absolute top-[-10%] left-[50%] -translate-x-1/2 w-150 h-75 bg-emerald-500/10 blur-[120px] rounded-full pointer-events-none'></div>
                     <div className='absolute bottom-[10%] right-[-10%] w-100 h-100 bg-green-500/3 blur-[150px] rounded-full pointer-events-none'></div>
 
-                    {/* Core Authentication Glass Container */}
+
                     <div className='w-[90%] max-w-100 rounded-2xl border border-white/6 bg-[#0d0e14]/60 backdrop-blur-md p-8 shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative z-10 space-y-6'>
 
-                        {/* Visual Operational Status Badge */}
+
                         <div className='text-center'>
                             <div className='inline-flex items-center gap-2 px-3 py-1 rounded-full border border-emerald-500/20 bg-emerald-500/5 text-xs text-emerald-400 font-medium mb-4 select-none'>
                                 <span className='w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse'></span>
@@ -425,16 +428,16 @@ const Admin = () => {
                             </h1>
                             <p className='text-xs text-gray-500 leading-relaxed max-w-xs mx-auto'>
                                 {isRegister
-                                    ? "Initialize a secure workspace node to isolate your engineering deliverables."
-                                    : "Authenticate your active developer session parameters to launch the engine."
+                                    ? "Create an account to start tracking your projects."
+                                    : "Log in to access your dashboard."
                                 }
                             </p>
                         </div>
 
-                        {/* Integrated Framework Interface Form */}
+
                         <form onSubmit={handleSubmit(handleAuth)} className='space-y-4'>
 
-                            {/* IDENTIFICATION INPUT STRING */}
+
                             <div className='space-y-2'>
                                 <label className='text-xs font-semibold text-gray-400 block tracking-wide'>
                                     Email Address
@@ -444,10 +447,10 @@ const Admin = () => {
                                     placeholder='developer@scopesync.dev'
                                     className='w-full rounded-xl border border-white/6 bg-[#090a0f] p-3 text-sm text-gray-200 placeholder:text-gray-700 focus:outline-none focus:border-emerald-500/40 transition-colors duration-200'
                                     {...register("email", {
-                                        required: "Email parameter allocation is strictly required.",
+                                        required: "Email is required.",
                                         pattern: {
                                             value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                                            message: "Invalid structural configuration format for target email path."
+                                            message: "Please enter a valid email address."
                                         }
                                     })}
                                 />
@@ -458,7 +461,7 @@ const Admin = () => {
                                 )}
                             </div>
 
-                            {/* CRYPTOGRAPHIC INPUT VALUE */}
+
                             <div className='space-y-2'>
                                 <label className='text-xs font-semibold text-gray-400 block tracking-wide'>
                                     Password
@@ -468,10 +471,10 @@ const Admin = () => {
                                     placeholder='••••••••'
                                     className='w-full rounded-xl border border-white/6 bg-[#090a0f] p-3 text-sm text-gray-200 placeholder:text-gray-700 focus:outline-none focus:border-emerald-500/40 transition-colors duration-200'
                                     {...register("password", {
-                                        required: "Authentication sequence requires a valid password mapping.",
+                                        required: "Password is required.",
                                         minLength: {
                                             value: 6,
-                                            message: "Length parameter boundary breach (Minimum 6 characters)."
+                                            message: "Password must be at least 6 characters long."
                                         }
                                     })}
                                 />
@@ -482,7 +485,7 @@ const Admin = () => {
                                 )}
                             </div>
 
-                            {/* SUBMIT INTERFACE ACTUATOR */}
+
                             <button
                                 type="submit"
                                 disabled={isSubmitting}
@@ -494,23 +497,23 @@ const Admin = () => {
                                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                                         </svg>
-                                        Verifying session parameters...
+                                        Logging in...
                                     </span>
                                 ) : (
-                                    <span>{isRegister ? "Initialize Node Stack" : "Launch Executive Console"}</span>
+                                    <span>{isRegister ? "Create Account" : "Log In"}</span>
                                 )}
                             </button>
                         </form>
 
-                        {/* CONTEXT VARIATION TOGGLE LINK */}
+
                         <div className='pt-4 border-t border-white/4 text-center'>
                             <span
                                 onClick={() => { setIsRegister(!isRegister); reset(); }}
                                 className='text-xs text-gray-500 hover:text-emerald-400 font-medium cursor-pointer transition-colors duration-200 select-none'
                             >
                                 {isRegister
-                                    ? "Existing operator registry? Access configuration gateway"
-                                    : "New environment container? Deploy active account workspace"
+                                    ? "Already have an account? Log in"
+                                    : "Don't have an account? Sign up"
                                 }
                             </span>
                         </div>
@@ -551,12 +554,13 @@ const Admin = () => {
                             secondary: '#13151a',
                         },
                     },
+                    maxToasts: 1
                 }}
             />
 
             {isInitWindow && (
                 <div className='w-full min-h-screen bg-[#090a0f] text-gray-300 flex flex-col relative overflow-hidden selection:bg-emerald-500/30 selection:text-emerald-300'>
-                    {/* Futuristic Subtle Mesh Gradients */}
+
                     <div className='absolute top-[-20%] left-[50%] -translate-x-1/2 w-150 h-100 bg-emerald-500/[0.07] blur-[140px] rounded-full pointer-events-none'></div>
                     <div className='absolute bottom-[-10%] left-[-10%] w-75 h-75 bg-green-500/2 blur-[100px] rounded-full pointer-events-none'></div>
 
@@ -564,7 +568,7 @@ const Admin = () => {
 
                     <main className='grow flex flex-col justify-center items-center py-12 px-4 relative z-10 w-full max-w-4xl mx-auto animate-fade-in'>
 
-                        {/* Unified Command Control Center Shell */}
+
                         <div className='w-full grid grid-cols-1 md:grid-cols-5 border border-white/6 bg-[#0d0e14]/40 backdrop-blur-xl rounded-2xl shadow-[0_30px_70px_rgba(0,0,0,0.6)] overflow-hidden'>
 
                             {/* Left Panel: Primary Actions (2 Columns) */}
@@ -578,40 +582,56 @@ const Admin = () => {
                                             Project Engine
                                         </h2>
                                         <p className='text-xs text-gray-500 leading-relaxed'>
-                                            Deploy a secure lifecycle container. Initialize environments tailored for structured engineering deliverables.
+                                            Create and manage your development projects in one place.
                                         </p>
                                     </div>
                                 </div>
 
                                 <button
-                                    onClick={() => { setisProjectWizard(true); setIsInitWindow(false); }}
+                                    onClick={() => { setIsProjectWizard(true); setIsInitWindow(false); }}
                                     className='mt-8 w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-semibold text-xs bg-linear-to-r from-emerald-500 to-green-600 text-black hover:shadow-[0_0_25px_rgba(16,185,129,0.25)] hover:scale-[1.01] active:scale-[0.99] transition-all duration-200'
                                 >
-                                    <span>Initialize New Workspace</span>
+                                    <span>New Project</span>
                                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4" />
                                     </svg>
                                 </button>
                             </div>
 
-                            {/* Right Panel: Workspaces Registry (3 Columns) */}
+                            {/* Right Panel: Workspaces  (3 Columns) */}
                             <div className='md:col-span-3 p-8 flex flex-col justify-between bg-black/10'>
                                 <div className='w-full flex flex-col h-full'>
                                     <div className='w-full flex justify-between items-center pb-4 border-b border-white/4 mb-4'>
                                         <span className='text-xs font-bold tracking-widest text-gray-500 uppercase font-mono'>
-                                            Active Environment Registers
+                                            Your Projects
                                         </span>
                                         <span className='text-[10px] font-mono bg-white/4 border border-white/6 text-emerald-400 px-2 py-0.5 rounded-md'>
-                                            {projects.length} System Nodes
+                                            {projects.length} Projects
                                         </span>
                                     </div>
 
                                     {projects.length === 0 ? (
                                         <div className='grow flex flex-col items-center justify-center py-12 text-center opacity-40'>
-                                            <svg className="w-8 h-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4a2 2 0 012-2m16 0h-2m-3 0H9m-3 0H4" />
+                                            <svg
+                                                fill="#9ca3af"
+                                                className="w-8 h-8 shrink-0" 
+                                                viewBox="0 0 26.901 26.901"
+                                                version="1.1"
+                                                id="Capa_1"
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                xmlnsXlink="http://www.w3.org/1999/xlink"
+                                                xmlSpace="preserve"
+                                            >
+                                                <g id="SVGRepo_bgCarrier" strokeWidth="0" />
+                                                <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round" />
+                                                <g id="SVGRepo_iconCarrier">
+                                                    <g>
+                                                        <path d="M24.514,6.516H21.47v2.07h1.399c0.713,0,1.292,0.578,1.292,1.291v13.66c0,0.715-0.579,1.295-1.292,1.295H9.948 c-0.713,0-1.29-0.58-1.29-1.295v-1.398H6.683v3.139c0,0.896,0.725,1.623,1.62,1.623h16.211c0.894,0,1.619-0.727,1.619-1.623V8.137 C26.133,7.244,25.409,6.516,24.514,6.516z" />
+                                                        <path d="M20.218,18.76V1.621C20.218,0.728,19.49,0,18.598,0H2.386C1.491,0,0.767,0.729,0.767,1.621V18.76 c0,0.898,0.724,1.623,1.619,1.623h16.212C19.492,20.383,20.218,19.658,20.218,18.76z" />
+                                                    </g>
+                                                </g>
                                             </svg>
-                                            <p className='text-xs text-gray-400 font-mono'>No active execution stacks deployed.</p>
+                                            <p className='text-xs text-gray-400 font-mono'>No projects yet.</p>
                                         </div>
                                     ) : (
                                         <ul className='w-full flex flex-col gap-3 max-h-65 overflow-y-auto pr-1 custom-scrollbar'>
@@ -620,41 +640,39 @@ const Admin = () => {
                                                     key={value._id}
                                                     className='group border border-white/4 bg-[#111218]/30 p-3.5 rounded-xl flex items-center justify-between hover:border-emerald-500/20 hover:bg-[#141620]/50 transition-all duration-200'
                                                 >
-                                                    {/* Left Side: Clickable Info Segment */}
+
                                                     <div
                                                         onClick={() => handleProject(value)}
                                                         className="flex items-center gap-4 cursor-pointer grow min-w-0"
                                                     >
-                                                        {/* Premium Minimalist Folder Icon */}
+
                                                         <div className="w-9 h-9 rounded-xl bg-white/2 border border-white/6 flex items-center justify-center text-gray-500 group-hover:text-emerald-400 group-hover:border-emerald-500/20 transition-all duration-300 shrink-0">
-                                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2z" />
+                                                            <svg className="w-5 h-5 text-emerald-400 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                                                             </svg>
                                                         </div>
 
-                                                        {/* Stacked Meta Texts */}
+
                                                         <div className="flex flex-col min-w-0 gap-1">
                                                             <span className="text-sm font-semibold text-gray-200 group-hover:text-white transition-colors truncate">
                                                                 {value.projectName}
                                                             </span>
                                                             <div className="flex items-center gap-2">
-                                                                {/* Clear High-Contrast Micro Badge */}
+
                                                                 <span className="text-[9px] font-mono font-bold tracking-wider uppercase text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
                                                                     {value.models || "Standard"}
                                                                 </span>
-                                                                <span className="text-[10px] text-gray-600 font-mono select-none">
-                                                                    node_id: {value._id?.slice(-6)}
-                                                                </span>
+
                                                             </div>
                                                         </div>
                                                     </div>
 
-                                                    {/* Right Side: Purge Interactive Button */}
+
                                                     <button
                                                         onClick={() => deleteProject(value._id)}
                                                         className='text-xs font-semibold text-gray-500 hover:text-red-400 px-3 py-1.5 rounded-lg hover:bg-red-500/10 opacity-0 group-hover:opacity-100 transition-all duration-150 shrink-0'
                                                     >
-                                                        Purge
+                                                        Delete
                                                     </button>
                                                 </li>
                                             ))}
@@ -665,13 +683,13 @@ const Admin = () => {
                                 {projects.length > 0 && (
                                     <div className='mt-8 pt-6 border-t border-white/5 w-full flex flex-col items-end gap-3 transition-all duration-300'>
                                         {!showWipeConfirm ? (
-                                            // Pristine, minimalist utility trigger that stays out of the way
+
                                             <button
                                                 type="button"
                                                 onClick={() => setShowWipeConfirm(true)}
                                                 className='inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/5 bg-white/1 hover:bg-red-500/3 hover:border-red-500/10 text-[11px] font-mono text-zinc-500 hover:text-red-400 border-dashed hover:border-solid transition-all duration-200 cursor-pointer group select-none'
                                             >
-                                                {/* Micro-vector asset for structural removal alignment */}
+
                                                 <svg
                                                     className="w-3.5 h-3.5 opacity-40 group-hover:opacity-90 group-hover:scale-105 transition-all duration-150"
                                                     fill="none"
@@ -680,16 +698,16 @@ const Admin = () => {
                                                 >
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                 </svg>
-                                                <span>Wipe Workspace Registers</span>
+                                                <span>Delete All Projects</span>
                                             </button>
                                         ) : (
-                                            // Matte Obsidian Danger Area tailored directly to the application grid
+
                                             <div className='w-full sm:w-auto flex flex-col sm:flex-row items-center gap-5 bg-[#110c0e] border border-red-950/60 backdrop-blur-md px-4 py-3 rounded-xl animate-fade-in justify-between shadow-[0_12px_40px_rgba(0,0,0,0.7)] z-10 animate-scale-up'>
                                                 <div className='flex items-center gap-2.5 select-none'>
-                                                    {/* Pulsing visual security indicator dot */}
+
                                                     <span className='w-1.5 h-1.5 rounded-full bg-red-500 shadow-[0_0_8px_#ef4444] animate-pulse shrink-0'></span>
                                                     <p className='text-[11px] font-sans font-medium text-zinc-400 tracking-wide leading-none'>
-                                                        Permanently purge all isolated data blocks? This action cannot be undone.
+                                                        This will permanently delete all your projects. This cannot be undone.
                                                     </p>
                                                 </div>
 
@@ -704,7 +722,7 @@ const Admin = () => {
                                                     <button
                                                         type="button"
                                                         className='bg-red-500/10 hover:bg-red-500 border border-red-500/20 hover:border-red-600 text-red-400 hover:text-black px-3 py-1.5 rounded-lg text-[11px] font-semibold tracking-wide transition-all duration-200 shadow-inner cursor-pointer'
-                                                        onClick={handleWipeDatabase}
+                                                        onClick={handleDeleteDatabase}
                                                     >
                                                         Confirm
                                                     </button>
@@ -730,14 +748,14 @@ const Admin = () => {
                     >
                         <div className='space-y-1'>
                             <h2 className='text-lg font-bold tracking-tight text-white'>Project Name</h2>
-                            <p className='text-xs text-gray-500'>Define the workspace environment directory tag.</p>
+                            <p className='text-xs text-gray-500'>Give your project a name.</p>
                         </div>
 
                         <input
                             type="text"
                             placeholder='e.g., CloudScope Platform Engine'
                             className='w-full bg-[#14161e] text-gray-200 border border-white/8 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-500/40 focus:ring-1 focus:ring-emerald-500/40 placeholder:text-gray-700 transition-all duration-200'
-                            {...register("projectName", { required: "Project identity title is required." })}
+                            {...register("projectName", { required: "Project name is required." })}
                         />
                         {errors.projectName && <div className='text-red-400 font-medium text-xs mt-0.5'> {errors.projectName.message}</div>}
 
@@ -761,27 +779,27 @@ const Admin = () => {
                         className='p-6 w-full max-w-md flex flex-col gap-4 border border-white/6 bg-[#0d0e14]/80 backdrop-blur-md rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative z-10 animate-scale-up'
                     >
                         <div className='space-y-1'>
-                            <h2 className='text-lg font-bold tracking-tight text-white'>Select Model Engine</h2>
-                            <p className='text-xs text-gray-500'>Choose an operational framework topology layout.</p>
+                            <h2 className='text-lg font-bold tracking-tight text-white'>Select Methodology</h2>
+                            <p className='text-xs text-gray-500'>Choose a project management methodology.</p>
                         </div>
 
-                        {/* Hidden Input: Taaki React Hook Form ko chupchap data milta rahe */}
-                        <input type="hidden" value={selectedModel} {...register("models", { required: "Framework blueprint selection is required." })} />
 
-                        {/* Custom Premium Dropdown Shell */}
+                        <input type="hidden" value={selectedModel} {...register("models", { required: "Please select a methodology." })} />
+
+
                         <div className="relative">
                             <button
                                 type="button"
                                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                                 className="w-full flex items-center justify-between bg-[#14161e] text-gray-300 border border-white/8 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-500/40 shadow-sm transition-all duration-200"
                             >
-                                <span className="font-medium text-gray-200">{selectedModel} Framework Mapping</span>
+                                <span className="font-medium text-gray-200">{selectedModel} </span>
                                 <svg className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
                                 </svg>
                             </button>
 
-                            {/* Dropdown Floating Panel */}
+
                             {isDropdownOpen && (
                                 <div className="absolute z-50 w-full mt-2 rounded-xl border border-white/8 bg-[#111218] shadow-[0_10px_30px_rgba(0,0,0,0.5)] overflow-hidden animate-fade-in">
                                     {["Waterfall", "Agile", "Scrum", "Kanban"].map((model) => (
@@ -796,7 +814,7 @@ const Admin = () => {
                                                 : 'text-gray-400 hover:bg-white/3 hover:text-white'
                                                 }`}
                                         >
-                                            {model} Topology Map
+                                            {model}
                                         </div>
                                     ))}
                                 </div>
@@ -812,17 +830,18 @@ const Admin = () => {
                                     : 'bg-linear-to-r from-emerald-500 to-green-600 text-black cursor-pointer hover:shadow-[0_0_20px_rgba(16,185,129,0.2)] hover:scale-[1.02] active:scale-[0.98]'
                                     }`}
                                 type="submit"
-                                value={isSubmitting ? "Generating Workspace..." : "Initialize & Build Sync Link"}
+                                value={isSubmitting ? "Creating Project..." : "Create Project"}
                                 disabled={isSubmitting}
                             />
                         </div>
                     </form>
                 </div>
             )}
+
             {currentProject && (
                 <ProjectDashboard
                     project={currentProject}
-                    isAdmin={true} // Because its a admin file
+                    isAdmin={true}
                     activePhase={activePhase}
                     setActivePhase={setActivePhase}
                     taskInput={taskInput}
@@ -832,6 +851,7 @@ const Admin = () => {
                     handleStatusChange={handleStatusChange}
                     handleDeleteTask={handleDeleteTask}
                     setIsInitWindow={setIsInitWindow}
+                    setCurrentProject={setCurrentProject}
                 />
             )}
 

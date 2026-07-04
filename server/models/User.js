@@ -15,9 +15,9 @@ const UserSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
-// Fixed pre-save lifecycle hook using clean async/await validation without 'next' callbacks
+// Hash password before saving
 UserSchema.pre('save', async function() {
-    // If the password has not been altered, skip the hashing block immediately
+    // If the password has not been modified, skip the hashing block immediately
     if (!this.isModified('password')) return;
     
     try {

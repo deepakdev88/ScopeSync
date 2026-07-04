@@ -1,28 +1,28 @@
 import jwt from 'jsonwebtoken';
 
 const protect = async (req, res, next) => {
-    // Extract token directly from the application cookies container
+    // Get token from cookie
     const token = req.cookies.token;
 
     if (!token) {
         return res.status(401).json({ 
             success: false, 
-            message: "Access unauthorized. Authentication token is missing." 
+            message: "Please log in." 
         });
     }
 
     try {
-        // Validate signature integrity against environmental cryptokey
+        // Verfiy token
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         
-        // Bind decrypted user footprint payload onto the request context pipeline
+        // Attach user data to the request
         req.user = decoded;
         next();
     } catch (error) {
-        console.error("JWT Verification Security Failure:", error.message);
+        console.error("Token verification failed:", error.message);
         return res.status(401).json({ 
             success: false, 
-            message: "Access unauthorized. Token validation failed or expired." 
+            message: "Session expired. Please log in again" 
         });
     }
 };
