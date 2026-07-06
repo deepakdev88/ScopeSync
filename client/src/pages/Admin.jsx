@@ -34,6 +34,26 @@ const Admin = () => {
 
 
 
+useEffect(() => {
+    const checkSession = async () => {
+        try {
+            const res = await fetch(`${API_URL}/api/auth/verify`, {
+                credentials: 'include'
+            })
+            const result = await res.json()
+            if (result.success) {
+                setIsAuth(true)
+                setIsInitWindow(true)
+                fetchProjects()
+            }
+        } catch (err) {
+            // no valid session, stay logged out
+        }
+    }
+    checkSession()
+}, [])
+
+
 
     const handleAuth = async (data) => {
 
@@ -538,24 +558,7 @@ const Admin = () => {
     }
 
 
-useEffect(() => {
-    const checkSession = async () => {
-        try {
-            const res = await fetch(`${API_URL}/api/auth/verify`, {
-                credentials: 'include'
-            })
-            const result = await res.json()
-            if (result.success) {
-                setIsAuth(true)
-                setIsInitWindow(true)
-                fetchProjects()
-            }
-        } catch (err) {
-            // no valid session, stay logged out
-        }
-    }
-    checkSession()
-}, [])
+
 
     return (
         <>
