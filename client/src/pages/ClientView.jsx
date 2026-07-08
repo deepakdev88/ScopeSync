@@ -40,7 +40,7 @@ const ClientView = () => {
     if (projectId) fetchProjectData(false)
   }, [projectId, fetchProjectData])
 
-  // Core Metrics Compilation
+  
   let totalTasks = 0
   let completedTasks = 0
   let inProgressTasks = 0

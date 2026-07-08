@@ -24,11 +24,11 @@ UserSchema.pre('save', async function() {
         const salt = await bcrypt.genSalt(10);
         this.password = await bcrypt.hash(this.password, salt);
     } catch (err) {
-        throw new Error(err); // Throwing error passes it directly down to the route catch block
+        throw new Error(err); 
     }
 });
 
-// Instance method to evaluate password validity during authentication operations
+
 UserSchema.methods.comparePassword = async function(enteredPassword) {
     return await bcrypt.compare(enteredPassword, this.password);
 };

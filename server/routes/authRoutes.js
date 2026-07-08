@@ -71,6 +71,20 @@ router.post('/login', async (req, res) => {
         return res.status(500).json({ success: false, message: "Internal server authentication error." });
     }
 });
+
+// @desc    Log out and clear auth cookie
+// @route   POST /api/auth/logout
+router.post('/logout', (req, res) => {
+    const isProd = process.env.NODE_ENV === 'production';
+    res.clearCookie('token', {
+        httpOnly: true,
+        secure: isProd,
+        sameSite: isProd ? 'none' : 'lax',
+        path: '/'
+    });
+    return res.status(200).json({ success: true, message: "Logged out successfully." });
+});
+
 // @desc    Check if session is valid
 // @route   GET /api/auth/verify
 router.get('/verify', protect, (req, res) => {

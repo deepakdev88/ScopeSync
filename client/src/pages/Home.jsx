@@ -7,7 +7,7 @@ const Home = () => {
   return (
     <div className='w-full min-h-screen bg-[#090a0f] text-gray-300 flex flex-col relative overflow-hidden selection:bg-emerald-500/30 selection:text-emerald-300'>
 
-      {/* Background Ambient Glows */}
+      
       <div className='absolute top-[-10%] left-[50%] -translate-x-1/2 w-150 h-75 bg-emerald-500/10 blur-[120px] rounded-full pointer-events-none'></div>
       <div className='absolute top-[50%] left-[-10%] w-125 h-125 bg-emerald-500/2 blur-[150px] rounded-full pointer-events-none'></div>
       <div className='absolute bottom-[10%] right-[-10%] w-100 h-100 bg-green-500/3 blur-[150px] rounded-full pointer-events-none'></div>
@@ -44,7 +44,7 @@ const Home = () => {
       {/* 2. PRODUCT VISUAL ANCHOR (Dashboard UI Mockup) */}
       <section className='w-full max-w-5xl mx-auto px-6 mb-16 relative z-10'>
         <div className='w-full rounded-2xl border border-white/6 bg-[#0d0e14]/60 backdrop-blur-md p-4 shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative group'>
-          {/* Top Bar Mimicking Browser Window */}
+          
           <div className='flex items-center justify-between border-b border-white/4 pb-3 mb-4'>
             <div className='flex gap-1.5'>
               <span className='w-3 h-3 rounded-full bg-white/10'></span>
@@ -58,7 +58,7 @@ const Home = () => {
           </div>
 
           
-          {/* Minimalist Visual Simulation of Dashboard */}
+          
           <div className='w-full grid grid-cols-1 md:grid-cols-3 gap-4 p-2 text-left text-xs font-sans group-hover:opacity-100 transition-opacity duration-300'>
 
             {/* Simulated Phase 1 */}
@@ -125,7 +125,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* 3. PREMIUM FEATURES GRID */}
+      
       <section className='w-full max-w-6xl mx-auto px-6 py-16 relative z-10 border-t border-white/4'>
         <div className='text-center mb-16'>
           <h2 className='text-2xl sm:text-3xl font-bold text-white tracking-tight mb-3'>
@@ -138,7 +138,7 @@ const Home = () => {
 
         <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
 
-          {/* Card 1 with SVG */}
+          {/* Card 1  */}
           <div className='group border border-white/5 bg-[#111218]/30 backdrop-blur-sm p-6 rounded-2xl hover:border-emerald-500/20 transition-all duration-300'>
             <div className='w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 mb-4 group-hover:scale-110 transition-transform duration-300'>
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -147,11 +147,11 @@ const Home = () => {
             </div>
             <h3 className='text-lg font-bold text-gray-200 mb-2'>Instant Scoping</h3>
             <p className='text-sm text-gray-500 leading-relaxed'>
-              Create projects instantly using Agile, Scrum, Kanban, or Waterfall methodology blueprints with zero setup.
+              Create projects instantly using Agile, Scrum, Kanban, or Waterfall SDLC model blueprints with zero setup.
             </p>
           </div>
 
-          {/* Card 2 with SVG */}
+          {/* Card 2  */}
           <div className='group border border-white/5 bg-[#111218]/30 backdrop-blur-sm p-6 rounded-2xl hover:border-emerald-500/20 transition-all duration-300'>
             <div className='w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 mb-4 group-hover:scale-110 transition-transform duration-300'>
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -164,7 +164,7 @@ const Home = () => {
             </p>
           </div>
 
-          {/* Card 3 with SVG */}
+          {/* Card 3  */}
           <div className='group border border-white/5 bg-[#111218]/30 backdrop-blur-sm p-6 rounded-2xl hover:border-emerald-500/20 transition-all duration-300 sm:col-span-2 lg:col-span-1'>
             <div className='w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 mb-4 group-hover:scale-110 transition-transform duration-300'>
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
