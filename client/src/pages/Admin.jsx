@@ -420,6 +420,8 @@ const Admin = () => {
             <Auth
                 handleAuth={handleAuth}
                 isRegister={isRegister}
+setIsRegister={setIsRegister}
+
             />
         )
     }
