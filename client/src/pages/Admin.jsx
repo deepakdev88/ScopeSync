@@ -48,7 +48,7 @@ const Admin = () => {
                     fetchProjects()
                 }
             } catch (err) {
-                console.error("Session is not valid:",err)// no valid session, stay logged out
+                console.error("Session is not valid:", err)// no valid session, stay logged out
             }
         }
         checkSession()
