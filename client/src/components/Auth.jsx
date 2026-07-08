@@ -5,7 +5,8 @@ import { useState } from 'react'
 
 const Auth = ({
     handleAuth,
-    isRegister
+    isRegister,
+    setIsRegister
 }) => {
     
     const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm()
