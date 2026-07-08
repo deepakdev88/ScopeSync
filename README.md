@@ -2,7 +2,7 @@
 
 > **A Full-Stack Project Management Dashboard for Developers**
 
-ScopeSync is a MERN stack application for tracking development projects across multiple methodologies — Waterfall, Agile, Scrum, and Kanban. It features cross-domain JWT authentication, multi-tenant data isolation, and a dark-themed dashboard UI.
+ScopeSync is a MERN stack application for tracking development projects across multiple methodologies — Waterfall, Agile, Scrum, and Kanban. It features cross-domain JWT authentication with persistent sessions, multi-tenant data isolation, and a dark-themed dashboard UI.
 
 ---
 
@@ -16,10 +16,13 @@ ScopeSync is a MERN stack application for tracking development projects across m
 ## Key Features
 
 - **Cross-Domain JWT Authentication** — Login/register with bcryptjs password hashing and HTTP-only cookies, working across separate Vercel/Render domains.
+- **Persistent Sessions** — Sessions survive page reloads; the app checks for a valid auth cookie on load instead of forcing re-login every time.
+- **Logout** — Securely clears the auth cookie on the server, ending the session.
 - **Multi-Methodology Workspace** — Templates for Waterfall, Agile, Scrum, and Kanban workflows.
 - **CRUD Operations** — Full control over projects, phases, and tasks.
 - **Task Tracking** — Break projects into phases, track task status (Pending / In Progress / Completed).
-- **Multi-Tenant Isolation** — Users can only access their own data.
+- **Private by Default** — Every user's projects and tasks are isolated; no one else can see or access them.
+- **Client Sharing** — Read-only shareable links so clients can view project status without an account.
 - **Responsive UI** — Dark theme, Tailwind CSS.
 
 ---
@@ -37,15 +40,22 @@ ScopeSync is a MERN stack application for tracking development projects across m
 
 ```
 ScopeSync/
-├── client/              # React Frontend (Vite)
-│   ├── src/pages/       # Home, Admin Dashboard, ClientView
-│   ├── src/components/  # ProjectDashboard, Navbar
-│   └── src/routes.jsx   # React Router config
+├── client/
+│   └── src/
+│       ├── pages/            # Home, Admin, ClientView
+│       ├── components/
+│       │   ├── admin/        # InitWindow, ProjectWizard, FinalWizard
+│       │   ├── Auth.jsx
+│       │   ├── ProjectDashboard.jsx
+│       │   ├── Navbar.jsx
+│       │   ├── LogoutButton.jsx
+│       │   └── Footer.jsx
+│       └── routes.jsx
 │
-└── server/              # Express Backend
-    ├── models/          # User, Project schemas
-    ├── routes/          # authRoutes, projectRoutes
-    └── middleware/      # authMiddleware (JWT verification)
+└── server/
+    ├── models/                # User, Project schemas
+    ├── routes/                # authRoutes, projectRoutes
+    └── middleware/            # authMiddleware (JWT verification)
 ```
 
 ---
@@ -99,14 +109,18 @@ npm run dev
 
 ### Auth
 - `POST /api/auth/register` — Register a new user
-- `POST /api/auth/login` — Authenticate and issue an HTTP-only JWT cookie
-- `GET /api/auth/verify` — Validate the active session
+- `POST /api/auth/login` — Log in and issue an HTTP-only JWT cookie
+- `POST /api/auth/logout` — Log out and clear the auth cookie
+- `GET /api/auth/verify` — Check if the current session is still valid
 
 ### Projects (Protected — requires valid JWT cookie)
-- `GET /api/projects` — Fetch all projects for the authenticated user
+- `GET /api/projects` — Get all projects for the logged-in user
+- `GET /api/projects/:id` — Get a single project by ID
 - `POST /api/projects` — Create a new project
 - `PUT /api/projects/:id` — Update a project's phases/tasks
-- `DELETE /api/projects/:id` — Delete a project
+- `DELETE /api/projects/:id` — Delete a single project
+- `DELETE /api/projects` — Delete all of the user's projects
+- `DELETE /api/tasks/:taskId` — Delete a single task
 
 ---
 
