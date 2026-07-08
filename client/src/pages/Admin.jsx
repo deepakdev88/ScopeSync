@@ -34,7 +34,6 @@ const Admin = () => {
 
     const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm()
 
-
     useEffect(() => {
         const checkSession = async () => {
             try {
@@ -62,7 +61,7 @@ const Admin = () => {
             const res = await fetch(`${API_URL}/api/auth/${endpoint}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                credentials: 'include', // Critically required to transmit secure httpOnly cookies cross-origin
+                credentials: 'include', 
                 body: JSON.stringify({ email: data.email, password: data.password })
             });
 
@@ -70,12 +69,12 @@ const Admin = () => {
 
             if (result.success) {
                 if (isRegister) {
-                    // Flow path for successful user registration
+                    
                     toast.success("Account successfully created! Please log in.");
-                    setIsRegister(false); // Seamlessly flip back to login view context
+                    setIsRegister(false); 
                     reset();
                 } else {
-                    // Flow path for successful user login authentication
+                   
                     toast.success("Logged in successfully.");
                     setIsAuth(true);
                     setIsInitWindow(true);
@@ -191,9 +190,9 @@ const Admin = () => {
             const result = await res.json();
 
             if (result.success) {
-                // Remove form UI
+    
                 setProjects(prev => prev.filter(p => p._id !== id));
-                // If thr deleted project was the currently open one, close the dashboard
+                
                 if (currentProject?._id === id) {
                     setCurrentProject(null);
                     setIsInitWindow(true);
@@ -250,7 +249,7 @@ const Admin = () => {
         setCurrentProject(updatedProject);
         setProjects(prev => prev.map((p) => p._id === currentProject._id ? updatedProject : p));
 
-        // Database Update (Backend Sync)
+        // Database Update
         try {
             const res = await fetch(`${API_URL}/api/projects/${currentProject._id}`, {
                 method: 'PUT',
@@ -367,15 +366,15 @@ const Admin = () => {
             setLoading(true)
             const res = await fetch(`${API_URL}/api/projects`, {
                 method: 'GET',
-                credentials: 'include' // Required to transmit the secure httpOnly token cookie to the protected route
+                credentials: 'include' 
             });
             const result = await res.json();
             if (result.success) {
                 setProjects(result.data);
             } else {
-                // If the token is invalid or expired, gracefully fallback and notify the user
+               
                 console.warn("Authorization verification failed:", result.message);
-                setIsAuth(false); // Route the user back to the clean login state
+                setIsAuth(false); 
             }
 
         } catch (err) {
@@ -393,14 +392,14 @@ const Admin = () => {
         try {
             const res = await fetch(`${API_URL}/api/projects`, {
                 method: 'DELETE',
-                credentials: 'include' // Transmits the active token signature securely
+                credentials: 'include' 
             });
 
             const result = await res.json();
 
             if (result.success) {
                 toast.success("All your projects have been deleted.");
-                setProjects([]); // Flush the state context on the UI instantly
+                setProjects([]); 
                 setShowWipeConfirm(false);
             } else {
                 console.error("Records removal routine rejected by server:", result.message);
@@ -429,13 +428,16 @@ const Admin = () => {
         return (
             <div className='flex justify-center items-center w-screen h-screen bg-[#090a0f]'>
                 <div className='flex flex-col items-center gap-3'>
-                    {/* Tailwind Native Spinner */}
+                    
                     <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-green-700'></div>
                     <p className='text-gray-500 font-semibold text-sm animate-pulse'>ScopeSync Data Loading...</p>
                 </div>
             </div>
         )
     }
+
+
+
 
     return (
         <>
