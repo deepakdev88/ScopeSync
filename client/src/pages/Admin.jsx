@@ -54,42 +54,85 @@ const Admin = () => {
     }, [])
 
     const handleAuth = async (data) => {
+    const endpoint = isRegister ? 'register' : 'login';
+    
+    toast.dismiss();
+    const loadingToastId = toast.loading(isRegister ? "Creating your account..." : "Logging you in...", {
+        style: { background: '#13151a', color: '#f3f4f6', border: '1px solid #2a2d35' }
+    });
 
+    try {
+        
+        const res = await fetch(`${API_URL}/api/auth/${endpoint}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ email: data.email, password: data.password })
+        });
 
-        const endpoint = isRegister ? 'register' : 'login';
-        try {
-            const res = await fetch(`${API_URL}/api/auth/${endpoint}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include', 
-                body: JSON.stringify({ email: data.email, password: data.password })
-            });
+        const result = await res.json();
 
-            const result = await res.json();
+        if (result.success) {
+            
+            if (isRegister) {
+                
+                toast.loading("Account created! Logging you in automatically...", {
+                    id: loadingToastId,
+                    style: { background: '#13151a', color: '#f3f4f6', border: '1px solid #2a2d35' }
+                });
 
-            if (result.success) {
-                if (isRegister) {
-                    
-                    toast.success("Account successfully created! Please log in.");
-                    setIsRegister(false); 
-                    reset();
-                } else {
-                   
-                    toast.success("Logged in successfully.");
+               
+                const loginRes = await fetch(`${API_URL}/api/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ email: data.email, password: data.password })
+                });
+                const loginResult = await loginRes.json();
+
+                toast.dismiss(loadingToastId); 
+
+                if (loginResult.success) {
+                    toast.success("Welcome to ScopeSync!", {
+                        style: { background: '#13151a', color: '#f3f4f6', border: '1px solid #2a2d35' },
+                        iconTheme: { primary: '#10b981', secondary: '#13151a' }
+                    });
+                    setIsRegister(false);
                     setIsAuth(true);
                     setIsInitWindow(true);
                     fetchProjects();
-                    reset();
+                    if (typeof reset === 'function') reset(); 
+                } else {
+                    
+                    toast.error("Account created, but auto-login failed. Please log in manually.");
+                    setIsRegister(false);
+                    if (typeof reset === 'function') reset();
                 }
-            } else {
-                toast.error(result.message || "Incorrect email or password.");
-            }
-        } catch (error) {
-            console.error("Critical authentication interface connection failure:", error);
-            toast.error("Couldn't connect to the server. Check your internet and try again");
-        }
-    };
 
+            
+            } else {
+                toast.dismiss(loadingToastId);
+                toast.success("Logged in successfully.", {
+                    style: { background: '#13151a', color: '#f3f4f6', border: '1px solid #2a2d35' },
+                    iconTheme: { primary: '#10b981', secondary: '#13151a' }
+                });
+                setIsAuth(true);
+                setIsInitWindow(true);
+                fetchProjects();
+                if (typeof reset === 'function') reset();
+            }
+
+        } else {
+            
+            toast.dismiss(loadingToastId);
+            toast.error(result.message || "Authentication failed.");
+        }
+    } catch (error) {
+        toast.dismiss(loadingToastId);
+        console.error(" Authentication failure:", error);
+        toast.error("Server connection lost. Please check your network.");
+    }
+};
     const handleLogout = async () => {
         try {
             await fetch(`${API_URL}/api/auth/logout`, {
@@ -180,8 +223,6 @@ const Admin = () => {
 
     // Handle projects deletion
     const executeDeleteProject = async (id) => {
-
-
         try {
             const res = await fetch(`${API_URL}/api/projects/${id}`, {
                 method: 'DELETE',
@@ -190,30 +231,65 @@ const Admin = () => {
             const result = await res.json();
 
             if (result.success) {
-    
+                toast.dismiss();
                 setProjects(prev => prev.filter(p => p._id !== id));
-                
+
+
                 if (currentProject?._id === id) {
                     setCurrentProject(null);
                     setIsInitWindow(true);
                 }
+
+
+                toast.success("Project deleted successfully!", {
+                    style: {
+                        background: '#13151a',
+                        color: '#f3f4f6',
+                        border: '1px solid #2a2d35',
+                        fontSize: '13px',
+                        fontWeight: '500'
+                    },
+                    iconTheme: {
+                        primary: '#10b981',
+                        secondary: '#fff',
+                    }
+                });
+            } else {
+
+                toast.error(result.message || "Could not delete project");
             }
         } catch (err) {
             console.error("Failed to delete project.:", err);
+            toast.error("Something went wrong. Please try again.");
         }
     };
 
     const deleteProject = (id) => {
         toast((t) => (
-            <div className="flex flex-col gap-2 p-1">
-                <span className="text-sm font-bold text-red-600"> Delete Project</span>
-                <span className="text-xs text-gray-400">This will permanently delete all project data. This cannot be undone</span>
-                <div className="flex gap-2 justify-end mt-1">
-                    <button onClick={() => toast.dismiss(t.id)} className="bg-gray-100 text-gray-700 text-xs px-3 py-1.5 font-medium rounded-lg hover:bg-gray-200 transition">Cancel</button>
-                    <button onClick={() => { toast.dismiss(t.id); executeDeleteProject(id); }} className="bg-red-500 text-white text-xs px-3 py-1.5 font-medium rounded-lg hover:bg-red-700 transition">Confirm Delete</button>
+            <div className="flex flex-col gap-2 p-1 text-left">
+                <span className="text-sm font-bold text-red-400">Delete Project</span>
+                <span className="text-xs text-gray-400 leading-normal">This will permanently delete all project data. This cannot be undone.</span>
+                <div className="flex gap-2 justify-end mt-2">
+                    <button
+                        onClick={() => toast.dismiss(t.id)}
+                        className="bg-[#1c1e24] text-gray-300 border border-white/5 text-xs px-3 py-1.5 font-medium rounded-xl hover:bg-white/5 hover:border-white/10 cursor-pointer transition"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        onClick={() => { toast.dismiss(t.id); executeDeleteProject(id); }}
+                        className="bg-red-500/10 text-red-400 border border-red-500/20 text-xs px-3 py-1.5 font-semibold rounded-xl hover:bg-red-500/20 cursor-pointer transition active:scale-95"
+                    >
+                        Confirm Delete
+                    </button>
                 </div>
             </div>
-        ), { id: `confirm-project-${id}`, duration: Infinity, position: "top-center" });
+        ), {
+            id: `confirm-project-${id}`,
+            duration: Infinity,
+            position: "top-center",
+            style: { background: '#13151a', border: '1px solid #2a2d35', padding: '12px' }
+        });
     };
 
     // Clear all tasks in this phase
@@ -232,10 +308,10 @@ const Admin = () => {
         toast.dismiss()
         toast((t) => (
             <div className="flex flex-col gap-2 p-1">
-                <span className="text-sm font-medium text-gray-400">Are you sure you want to clear all tasks in this phase?</span>
+                <span className="text-xs text-gray-400 leading-normal">Are you sure you want to clear all tasks in this phase?</span>
                 <div className="flex gap-2 justify-end mt-1">
-                    <button onClick={() => toast.dismiss(t.id)} className="bg-gray-100 text-gray-700 text-xs px-3 py-1.5 font-medium rounded-lg hover:bg-gray-200 transition">Cancel</button>
-                    <button onClick={() => { toast.dismiss(t.id); executeClearAllTasks(phaseName); }} className="bg-red-500 text-white text-xs px-3 py-1.5 font-medium rounded-lg hover:bg-red-600 transition">Clear All</button>
+                    <button onClick={() => toast.dismiss(t.id)} className="bg-[#1c1e24] text-gray-300 border border-white/5 text-xs px-3 py-1.5 font-medium rounded-xl hover:bg-white/5 hover:border-white/10 cursor-pointer transition">Cancel</button>
+                    <button onClick={() => { toast.dismiss(t.id); executeClearAllTasks(phaseName); }} className="bg-red-500/10 text-red-400 border border-red-500/20 text-xs px-3 py-1.5 font-semibold rounded-xl hover:bg-red-500/20 cursor-pointer transition active:scale-95">Clear All</button>
                 </div>
             </div>
         ), { id: `confirm-clear-${phaseName}`, duration: Infinity });
@@ -352,10 +428,10 @@ const Admin = () => {
         toast.dismiss()
         toast((t) => (
             <div className="flex flex-col gap-2 p-1">
-                <span className="text-sm font-medium text-gray-400">Delete this task? This can't be undone.</span>
+                <span className="text-xs text-gray-400 leading-normal">Delete this task? This can't be undone.</span>
                 <div className="flex gap-2 justify-end mt-1">
-                    <button onClick={() => toast.dismiss(t.id)} className="bg-gray-100 text-gray-700 text-xs px-3 py-1.5 font-medium rounded-lg hover:bg-gray-200 transition">Cancel</button>
-                    <button onClick={() => { toast.dismiss(t.id); executeDeleteTask(taskId, projectId); }} className="bg-red-500 text-white text-xs px-3 py-1.5 font-medium rounded-lg hover:bg-red-600 transition">Delete</button>
+                    <button onClick={() => toast.dismiss(t.id)} className="bg-[#1c1e24] text-gray-300 border border-white/5 text-xs px-3 py-1.5 font-medium rounded-xl hover:bg-white/5 hover:border-white/10 cursor-pointer transition">Cancel</button>
+                    <button onClick={() => { toast.dismiss(t.id); executeDeleteTask(taskId, projectId); }} className="bg-red-500/10 text-red-400 border border-red-500/20 text-xs px-3 py-1.5 font-semibold rounded-xl hover:bg-red-500/20 cursor-pointer transition active:scale-95">Delete</button>
                 </div>
             </div>
         ), { id: `confirm-task-${taskId}`, duration: Infinity, position: "top-center" });
@@ -366,15 +442,15 @@ const Admin = () => {
             setLoading(true)
             const res = await fetch(`${API_URL}/api/projects`, {
                 method: 'GET',
-                credentials: 'include' 
+                credentials: 'include'
             });
             const result = await res.json();
             if (result.success) {
                 setProjects(result.data);
             } else {
-               
+
                 console.warn("Authorization verification failed:", result.message);
-                setIsAuth(false); 
+                setIsAuth(false);
             }
 
         } catch (err) {
@@ -392,14 +468,14 @@ const Admin = () => {
         try {
             const res = await fetch(`${API_URL}/api/projects`, {
                 method: 'DELETE',
-                credentials: 'include' 
+                credentials: 'include'
             });
 
             const result = await res.json();
 
             if (result.success) {
                 toast.success("All your projects have been deleted.");
-                setProjects([]); 
+                setProjects([]);
                 setShowWipeConfirm(false);
             } else {
                 console.error("Records removal routine rejected by server:", result.message);
@@ -420,7 +496,7 @@ const Admin = () => {
             <Auth
                 handleAuth={handleAuth}
                 isRegister={isRegister}
-setIsRegister={setIsRegister}
+                setIsRegister={setIsRegister}
 
             />
         )
@@ -430,7 +506,7 @@ setIsRegister={setIsRegister}
         return (
             <div className='flex justify-center items-center w-screen h-screen bg-[#090a0f]'>
                 <div className='flex flex-col items-center gap-3'>
-                    
+
                     <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-green-700'></div>
                     <p className='text-gray-500 font-semibold text-sm animate-pulse'>ScopeSync Data Loading...</p>
                 </div>

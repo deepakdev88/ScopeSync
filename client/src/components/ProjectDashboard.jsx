@@ -95,7 +95,7 @@ const ProjectDashboard = ({
                                         }}
                                         className='inline-flex items-center gap-2 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/20 px-4 py-2 rounded-xl text-xs font-semibold tracking-wide transition-all duration-200 cursor-pointer active:scale-95 group shadow-[0_4px_12px_rgba(16,185,129,0.05)]'
                                     >
-                                        
+
                                         <svg
                                             className="w-4 h-4 transform group-hover:-translate-x-0.5 transition-transform duration-200"
                                             fill="none"
@@ -137,7 +137,7 @@ const ProjectDashboard = ({
                         </div>
                     </header>
 
-                    
+
                     <section className='w-full max-w-7xl mx-auto px-6 pt-6 grid grid-cols-1 sm:grid-cols-3 gap-4 shrink-0'>
                         {['Completed', 'In Progress', 'Pending'].map((metric, i) => {
                             const colors = ['text-emerald-400 border-emerald-500/10 bg-emerald-500/[0.02]', 'text-blue-400 border-blue-500/10 bg-blue-500/[0.02]', 'text-gray-400 border-white/[0.06] bg-white/[0.01]'];
@@ -281,9 +281,8 @@ const ProjectDashboard = ({
 
                                     {/* Right Panel: Tasks List Area */}
                                     <div className='grow p-6 flex flex-col overflow-hidden bg-white/0.5'>
-                                        <div className='flex justify-between items-center text-[10px] font-mono tracking-widest text-gray-400 uppercase border-b border-white/2 pb-3 mb-4 shrink-0'>
-                                            <span className='font-semibold'>Active Tasks</span>
-                                            <span>{currentOpenPhase.tasks?.length || 0} Tasks</span>
+                                        <div className='flex justify-end items-center text-[10px] font-mono tracking-widest text-gray-400 uppercase border-b border-white/2 pb-3 mb-4 shrink-0'>
+                                            <span className='font-semibold'>{currentOpenPhase.tasks?.length || 0} Active Tasks</span>
                                         </div>
 
                                         <div className='grow overflow-y-auto pr-1 custom-scrollbar flex flex-col gap-3'>
@@ -314,28 +313,29 @@ const ProjectDashboard = ({
                                                 currentOpenPhase.tasks?.map((task) => (
                                                     <div
                                                         key={task._id || task.tempId}
-                                                        className='group border border-white/4 bg-[#111218]/50 p-4 rounded-xl flex items-center justify-between gap-6 hover:border-white/8 hover:bg-[#141620]/60 transition-all duration-150'
+                                                        className='group border border-white/4 bg-[#111218]/50 p-4 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-white/8 hover:bg-[#141620]/60 transition-all duration-150'
                                                     >
-                                                        <div className='flex items-center gap-4 min-w-0 grow'>
-                                                            <span className={`text-base font-bold shrink-0 select-none ${task.status === 'completed' ? 'text-emerald-600' : task.status === 'progress' ? 'text-blue-400 animate-pulse' : 'text-gray-600'}`}>
+                                                        
+                                                        <div className='flex items-start gap-3 min-w-0 grow'>
+                                                            <span className={`text-base font-bold shrink-0 select-none mt-0.5 ${task.status === 'completed' ? 'text-emerald-600' : task.status === 'progress' ? 'text-blue-400 animate-pulse' : 'text-gray-600'}`}>
                                                                 {task.status === 'completed' ? '✓' : task.status === 'progress' ? '●' : '○'}
                                                             </span>
-                                                            <div className='flex flex-col min-w-0 gap-0.5'>
-                                                                <span className={`text-sm font-semibold wrap-break-word leading-relaxed ${task.status === 'completed' ? 'text-gray-400 opacity-60 font-normal' : 'text-gray-200'}`}>
+                                                            <div className='flex flex-col min-w-0 w-full'>
+                                                                
+                                                                <span className={`text-sm font-semibold wrap-break-word whitespace-normal leading-relaxed ${task.status === 'completed' ? 'text-gray-400 opacity-60 font-normal' : 'text-gray-200'}`}>
                                                                     {task.name}
                                                                 </span>
-
                                                             </div>
                                                         </div>
 
-                                                        <div className='flex items-center gap-4 shrink-0'>
+                                                        
+                                                        <div className='flex items-center justify-between sm:justify-end gap-4 shrink-0 border-t border-white/5 pt-3 sm:pt-0 sm:border-none w-full sm:w-auto'>
                                                             {isAdmin ? (
-
-                                                                <div className="relative">
+                                                                <div className="relative grow sm:grow-0">
                                                                     <button
                                                                         type="button"
-                                                                        onClick={(e) => handleStatusMenuToggle(e, task._id)} // FIXED WRAPPER TRIGGER
-                                                                        className="bg-[#14161e] text-gray-300 border border-white/8 rounded-xl px-3 py-1.5 text-xs font-medium hover:border-white/15 flex items-center gap-2 transition-all min-w-25 justify-between"
+                                                                        onClick={(e) => handleStatusMenuToggle(e, task._id)}
+                                                                        className="bg-[#14161e] text-gray-300 border border-white/8 rounded-xl px-3 py-1.5 text-xs font-medium hover:border-white/15 flex items-center gap-2 transition-all w-full sm:min-w-25 justify-between"
                                                                     >
                                                                         <span className={task.status === 'completed' ? 'text-emerald-400' : task.status === 'progress' ? 'text-blue-400' : 'text-gray-400'}>
                                                                             {task.status === 'completed' ? 'Completed' : task.status === 'progress' ? 'In Progress' : 'Pending'}
@@ -344,10 +344,8 @@ const ProjectDashboard = ({
                                                                     </button>
 
                                                                     {activeStatusMenu === task._id && (
-
-                                                                        <div className={`absolute right-0 z-50 w-32 rounded-xl border border-white/8 bg-[#14161f] shadow-2xl overflow-hidden font-sans text-xs animate-fade-in ${isDropUp ? 'bottom-full mb-2' : 'top-full mt-2'
-                                                                            }`}>
-                                                                            {[['pending', 'Pending'], ['progress', 'In Progress'], ['completed', 'Completed']].map(([v, l]) => (
+                                                                        <div className={`absolute right-0 z-50 w-32 rounded-xl border border-white/8 bg-[#14161f] shadow-2xl overflow-hidden font-sans text-xs animate-fade-in ${isDropUp ? 'bottom-full mb-2' : 'top-full mt-2'}`}>
+                                                                            {[["pending", "Pending"], ["progress", "In Progress"], ["completed", "Completed"]].map(([v, l]) => (
                                                                                 <div
                                                                                     key={v}
                                                                                     onClick={() => { handleStatusChange(currentOpenPhase.phaseName, v, task._id); setActiveStatusMenu(null); }}
@@ -368,7 +366,7 @@ const ProjectDashboard = ({
                                                             {isAdmin && (
                                                                 <button
                                                                     onClick={() => handleDeleteTask(task._id, project._id)}
-                                                                    className='text-gray-500 hover:text-red-400 p-1 rounded-xl hover:bg-red-500/10 transition-all shrink-0'
+                                                                    className='text-gray-500 hover:text-red-400 p-2 rounded-xl hover:bg-red-500/10 transition-all minimize-0'
                                                                     title="Remove Task Target"
                                                                 >
                                                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
