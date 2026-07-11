@@ -1,5 +1,5 @@
 import React from 'react'
-import { toast, Toaster } from 'react-hot-toast'
+import { toast } from 'react-hot-toast'
 import { useForm } from 'react-hook-form'
 import { useState } from 'react'
 
@@ -13,31 +13,6 @@ const Auth = ({
     return (
         <>
 
-            <Toaster
-                position="top-center"
-                toastOptions={{
-                    style: {
-                        background: '#0d0e14',
-                        color: '#d1d5db',
-                        border: '1px solid rgba(255, 255, 255, 0.06)',
-                        borderRadius: '12px',
-                        fontSize: '13px',
-                        backdropFilter: 'blur(12px)',
-                    },
-                    success: {
-                        iconTheme: {
-                            primary: '#10b981',
-                            secondary: '#0d0e14',
-                        },
-                    },
-                    error: {
-                        iconTheme: {
-                            primary: '#ef4444',
-                            secondary: '#0d0e14',
-                        },
-                    },
-                }}
-            />
 
             <div className='w-full min-h-screen bg-[#090a0f] text-gray-300 flex flex-col items-center justify-center relative overflow-hidden selection:bg-emerald-500/30 selection:text-emerald-300 font-sans antialiased'>
 

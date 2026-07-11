@@ -29,7 +29,7 @@ router.put('/projects/:id', protect, async (req, res) => {
         const updatedProject = await Project.findOneAndUpdate(
             { _id: req.params.id, user: req.user.id },
             { phases },
-            { returnDocument: 'after' }
+            { returnDocument: 'after', runValidators:true }
         );
 
         if (!updatedProject) {

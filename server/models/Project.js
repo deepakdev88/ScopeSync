@@ -2,7 +2,6 @@ import mongoose from "mongoose";
 
 //Tasks Schema
 const TaskSchema = new mongoose.Schema({
-    id: {type: String, required: true},
     name: {type: String, required:true},
     status: {
         type: String,

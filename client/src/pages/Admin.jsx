@@ -5,7 +5,7 @@ import ProjectDashboard from '../components/ProjectDashboard'
 import InitWindow from '../components/admin/InitWindow'
 import ProjectWizard from '../components/admin/ProjectWizard'
 import FinalWizard from '../components/admin/FinalWizard'
-import { toast, Toaster } from 'react-hot-toast'
+import { toast } from 'react-hot-toast'
 import { API_URL } from '../config';
 import "../App.css"
 import Auth from '../components/Auth'
@@ -265,6 +265,7 @@ const Admin = () => {
     };
 
     const deleteProject = (id) => {
+        toast.dismiss()
         toast((t) => (
             <div className="flex flex-col gap-2 p-1 text-left">
                 <span className="text-sm font-bold text-red-400">Delete Project</span>
@@ -464,7 +465,7 @@ const Admin = () => {
 
     const handleDeleteDatabase = async () => {
 
-
+        toast.dismiss()
         try {
             const res = await fetch(`${API_URL}/api/projects`, {
                 method: 'DELETE',
@@ -519,25 +520,7 @@ const Admin = () => {
 
     return (
         <>
-            <Toaster
-                position="top-center"
-                toastOptions={{
-                    style: {
-                        background: '#13151a', // Rich dark background
-                        color: '#f3f4f6',      // Light gray text
-                        border: '1px solid #2a2d35', // Subtle dark border
-                        borderRadius: '12px',
-                        fontSize: '14px',
-                    },
-                    success: {
-                        iconTheme: {
-                            primary: '#10b981', // Emerald green tick
-                            secondary: '#13151a',
-                        },
-                    },
-                    maxToasts: 1
-                }}
-            />
+         
 
             {isInitWindow && (
                 <InitWindow
